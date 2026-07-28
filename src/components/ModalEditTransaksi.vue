@@ -1,6 +1,10 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { supabase } from '../lib/supabase'
+import { JENIS_ACARA_DEFAULT } from '../constants/jenisAcara'
+import GlassSelect from './GlassSelect.vue'
+import GlassDatePicker from './GlassDatePicker.vue'
+import { showAlert } from '../utils/alert'
 
 const props = defineProps({
   show: Boolean,
@@ -15,10 +19,16 @@ const formData = ref({
   tipe: 'masuk',
   kontak_id: '',
   nominal: 0,
-  tanggal: '',
+  tanggal_acara: '',
   kategori_acara: 'suka_cita',
+  jenis_acara: JENIS_ACARA_DEFAULT[0].label,
   keterangan: ''
 })
+
+function onJenisAcaraChange() {
+  const found = JENIS_ACARA_DEFAULT.find((j) => j.label === formData.value.jenis_acara)
+  if (found) formData.value.kategori_acara = found.kategori_acara
+}
 
 const nominalDisplay = ref('')
 
@@ -37,7 +47,14 @@ function formatNominal(e) {
   }
 }
 
+const tipeOptions = [
+  { label: 'Diterima (Amplop Masuk)', value: 'masuk' },
+  { label: 'Diberikan (Amplop Keluar)', value: 'keluar' }
+]
+const jenisAcaraOptions = JENIS_ACARA_DEFAULT.map(j => ({ label: j.label, value: j.label }))
+
 const kontakList = ref([])
+const kontakOptions = computed(() => kontakList.value.map(k => ({ label: k.nama, value: k.id })))
 
 onMounted(async () => {
   const { data } = await supabase.from('kontak').select('id, nama').order('nama')
@@ -58,8 +75,9 @@ watch(() => props.show, async (newVal) => {
         tipe: data.tipe,
         kontak_id: data.kontak_id,
         nominal: data.nominal,
-        tanggal: data.tanggal,
+        tanggal_acara: data.tanggal_acara,
         kategori_acara: data.kategori_acara,
+        jenis_acara: data.jenis_acara || JENIS_ACARA_DEFAULT[0].label,
         keterangan: data.keterangan || ''
       }
       nominalDisplay.value = data.nominal.toLocaleString('id-ID')
@@ -76,8 +94,9 @@ async function handleSave() {
       tipe: formData.value.tipe,
       kontak_id: formData.value.kontak_id,
       nominal: formData.value.nominal,
-      tanggal: formData.value.tanggal || null,
+      tanggal_acara: formData.value.tanggal_acara || null,
       kategori_acara: formData.value.kategori_acara,
+      jenis_acara: formData.value.jenis_acara,
       keterangan: formData.value.keterangan || null
     })
     .eq('id', props.transaksiId)
@@ -87,14 +106,14 @@ async function handleSave() {
     emit('updated')
     emit('close')
   } else {
-    alert('Gagal menyimpan perubahan: ' + error.message)
+    showAlert('Gagal Menyimpan', 'Gagal menyimpan perubahan: ' + error.message, 'error')
   }
 }
 </script>
 
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl relative animate-blob" style="animation-duration: 0.3s; animation-name: popIn;">
+  <div v-if="show" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" @click.self="emit('close')">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl relative animate-blob max-h-[90vh] overflow-y-auto flex flex-col" style="animation-duration: 0.3s; animation-name: popIn;">
       <button @click="emit('close')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -108,18 +127,12 @@ async function handleSave() {
       <form v-else @submit.prevent="handleSave" class="space-y-4">
         <div>
           <label class="block text-sm font-semibold text-slate-600 mb-1.5">Jenis Transaksi</label>
-          <select v-model="formData.tipe" class="input-field" required>
-            <option value="masuk">Diterima (Amplop Masuk)</option>
-            <option value="keluar">Diberikan (Amplop Keluar)</option>
-          </select>
+          <GlassSelect v-model="formData.tipe" :options="tipeOptions" />
         </div>
         
         <div>
           <label class="block text-sm font-semibold text-slate-600 mb-1.5">Kontak</label>
-          <select v-model="formData.kontak_id" class="input-field" required>
-            <option value="" disabled>Pilih Kontak</option>
-            <option v-for="k in kontakList" :key="k.id" :value="k.id">{{ k.nama }}</option>
-          </select>
+          <GlassSelect v-model="formData.kontak_id" :options="kontakOptions" placeholder="Pilih Kontak" />
         </div>
 
         <div>
@@ -129,15 +142,12 @@ async function handleSave() {
 
         <div>
           <label class="block text-sm font-semibold text-slate-600 mb-1.5">Tanggal (Opsional)</label>
-          <input v-model="formData.tanggal" type="date" class="input-field" />
+          <GlassDatePicker v-model="formData.tanggal_acara" />
         </div>
         
         <div>
-          <label class="block text-sm font-semibold text-slate-600 mb-1.5">Kategori Acara</label>
-          <select v-model="formData.kategori_acara" class="input-field" required>
-            <option value="suka_cita">Suka Cita (Pernikahan, Lahiran, dll)</option>
-            <option value="duka">Duka (Meninggal, Sakit, dll)</option>
-          </select>
+          <label class="block text-sm font-semibold text-slate-600 mb-1.5">Jenis Acara</label>
+          <GlassSelect v-model="formData.jenis_acara" :options="jenisAcaraOptions" @change="onJenisAcaraChange" />
         </div>
 
         <div>

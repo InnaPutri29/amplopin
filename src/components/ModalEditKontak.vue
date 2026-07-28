@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { supabase } from '../lib/supabase'
+import { showAlert } from '../utils/alert'
 
 const props = defineProps({
   show: Boolean,
@@ -42,7 +43,7 @@ async function handleSave() {
     emit('updated')
     emit('close')
   } else {
-    alert('Gagal menyimpan perubahan: ' + error.message)
+    showAlert('Gagal Menyimpan', 'Gagal menyimpan perubahan: ' + error.message, 'error')
   }
 }
 </script>

@@ -46,3 +46,46 @@
     animation-delay: 4s;
   }
 }
+
+/* Liquid Glass Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(134, 158, 201, 0.35); /* Serenity tinted glass */
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(134, 158, 201, 0.55); 
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+/* SweetAlert2 Glassmorphism */
+.glass-swal-popup {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+  color: #1e293b !important;
+}
+
+.glass-swal-title {
+  color: #0f172a !important;
+  font-size: 1.5rem !important;
+}
+
+.glass-swal-html {
+  color: #475569 !important;
+}

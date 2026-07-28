@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
+import { showAlert, showConfirm } from '../utils/alert'
 
 const route = useRoute()
 const router = useRouter()
@@ -45,7 +46,8 @@ async function loadData() {
     .from('transaksi')
     .select('*')
     .eq('kontak_id', kontakId)
-    .order('tanggal', { ascending: false })
+    .order('tanggal_acara', { ascending: false })
+    .order('created_at', { ascending: false })
     
   if (riwayatData) {
     riwayat.value = riwayatData
@@ -57,12 +59,14 @@ async function loadData() {
 }
 
 async function hapusKontak() {
-  if (riwayat.value.length > 0) {
-    alert('Tidak dapat menghapus kontak yang sudah memiliki riwayat transaksi. Hapus riwayat transaksi dengan kontak ini terlebih dahulu di halaman Riwayat.')
+  const { data: count } = await supabase.from('transaksi').select('id', { count: 'exact' }).eq('kontak_id', kontak.value.id)
+  if (count && count.length > 0) {
+    showAlert('Tidak Dapat Menghapus', 'Tidak dapat menghapus kontak yang sudah memiliki riwayat transaksi. Hapus riwayat transaksi dengan kontak ini terlebih dahulu di halaman Riwayat.', 'error')
     return
   }
-
-  if (!confirm('Apakah Anda yakin ingin menghapus kontak ini secara permanen?')) return
+  
+  const confirmed = await showConfirm('Hapus Kontak?', 'Apakah Anda yakin ingin menghapus kontak ini secara permanen?')
+  if (!confirmed) return
 
   const { error } = await supabase
     .from('kontak')
@@ -70,9 +74,9 @@ async function hapusKontak() {
     .eq('id', kontakId)
 
   if (!error) {
-    router.push('/kontak')
+    router.replace('/')
   } else {
-    alert('Gagal menghapus kontak: ' + error.message)
+    showAlert('Gagal Menghapus', 'Gagal menghapus kontak: ' + error.message, 'error')
   }
 }
 
@@ -80,7 +84,7 @@ onMounted(loadData)
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto">
+  <div>
     <button @click="router.back()" class="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-semibold mb-6 transition-colors">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -151,7 +155,7 @@ onMounted(loadData)
               </p>
             </div>
             
-            <p class="text-xs font-medium text-slate-400 mb-1">{{ formatDate(item.tanggal) }}</p>
+            <p class="text-xs font-medium text-slate-400 mb-1">{{ formatDate(item.tanggal_acara) }}</p>
             <p v-if="item.keterangan" class="text-sm text-slate-600 italic bg-slate-50 p-3 rounded-xl mt-2">"{{ item.keterangan }}"</p>
           </div>
         </div>

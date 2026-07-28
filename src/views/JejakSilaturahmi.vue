@@ -5,13 +5,22 @@ import { KATEGORI_LABEL } from '../constants/jenisAcara'
 import { useAuth } from '../composables/useAuth'
 import { JENIS_ACARA_DEFAULT } from '../constants/jenisAcara'
 import ModalEditTransaksi from '../components/ModalEditTransaksi.vue'
+import GlassSelect from '../components/GlassSelect.vue'
+import GlassDatePicker from '../components/GlassDatePicker.vue'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
+import { showAlert, showConfirm } from '../utils/alert'
 import * as XLSX from 'xlsx'
 
 const { user } = useAuth()
 const data = ref([])
 const loading = ref(true)
 const filterKategori = ref('suka_cita')
+
+const tipeOptions = [
+  { label: 'Diterima (Mereka memberi ke kita)', value: 'masuk' },
+  { label: 'Diberikan (Kita memberi ke mereka)', value: 'keluar' }
+]
+const jenisAcaraOptions = JENIS_ACARA_DEFAULT.map(j => ({ label: j.label, value: j.label }))
 const searchQuery = ref('')
 
 const showDetailModal = ref(false)
@@ -33,7 +42,7 @@ async function editTransaksiJejak(row) {
     .eq('kontak_id', row.kontak_id)
     .eq('kategori_acara', filterKategori.value)
     .eq('tipe', 'masuk')
-    .order('tanggal', { ascending: false })
+    .order('tanggal_acara', { ascending: false })
     .limit(1)
     .single()
     
@@ -41,12 +50,13 @@ async function editTransaksiJejak(row) {
     selectedTransaksiId.value = data.id
     showEditModal.value = true
   } else {
-    alert('Data transaksi tidak ditemukan.')
+    showAlert('Tidak Ditemukan', 'Data transaksi tidak ditemukan.', 'error')
   }
 }
 
 async function hapusTransaksiJejak(row) {
-  if (!confirm(`Hapus catatan amplop masuk untuk "${row.nama_kontak}"?`)) return
+  const confirmed = await showConfirm('Hapus Catatan?', `Hapus catatan amplop masuk untuk "${row.nama_kontak}"?`)
+  if (!confirmed) return
   
   const { error } = await supabase
     .from('transaksi')
@@ -59,7 +69,7 @@ async function hapusTransaksiJejak(row) {
   if (!error) {
     load()
   } else {
-    alert('Gagal menghapus: ' + error.message)
+    showAlert('Gagal Menghapus', 'Gagal menghapus: ' + error.message, 'error')
   }
 }
 
@@ -69,7 +79,8 @@ function editTransaksi(id) {
 }
 
 async function handleDelete(id) {
-  if (!confirm('Apakah Anda yakin ingin menghapus catatan ini?')) return
+  const confirmed = await showConfirm('Hapus Catatan?', 'Apakah Anda yakin ingin menghapus catatan ini?')
+  if (!confirmed) return
   
   const { error } = await supabase
     .from('transaksi')
@@ -82,7 +93,7 @@ async function handleDelete(id) {
     }
     load()
   } else {
-    alert('Gagal menghapus catatan.')
+    showAlert('Gagal Menghapus', 'Gagal menghapus catatan.', 'error')
   }
 }
 
@@ -100,15 +111,15 @@ async function viewDetail(row) {
   
   const { data, error } = await supabase
     .from('transaksi')
-    .select('id, tipe, nominal, tanggal, keterangan, jenis_acara')
+    .select('id, tipe, nominal, tanggal_acara, keterangan, jenis_acara')
     .eq('keluarga_id', user.value.id)
     .eq('kontak_id', row.kontak_id)
     .eq('kategori_acara', filterKategori.value)
     .eq('tipe', 'masuk')
-    .order('tanggal', { ascending: false })
+    .order('tanggal_acara', { ascending: false })
     
   if (error) {
-    alert('Gagal memuat rincian: ' + error.message)
+    showAlert('Gagal Memuat', 'Gagal memuat rincian: ' + error.message, 'error')
     detailTransaksi.value = []
   } else {
     detailTransaksi.value = data || []
@@ -225,7 +236,7 @@ async function processImport() {
           tipe: importConfig.value.tipe,
           kategori_acara: importConfig.value.kategoriAcara,
           jenis_acara: importConfig.value.jenisAcaraLabel,
-          tanggal: importConfig.value.tanggalAcara,
+          tanggal_acara: importConfig.value.tanggalAcara,
           nominal: nominal,
           keterangan: 'Hasil Impor Excel'
         })
@@ -233,12 +244,12 @@ async function processImport() {
         importedCount++
       }
       
-      alert(`Berhasil mengimpor ${importedCount} catatan.`)
+      showAlert('Impor Berhasil', `Berhasil mengimpor ${importedCount} catatan.`, 'success')
       showImportModal.value = false
       importFile.value = null
       load()
     } catch (err) {
-      alert('Gagal memproses file Excel: ' + err.message)
+      showAlert('Gagal Impor', 'Gagal memproses file Excel: ' + err.message, 'error')
     } finally {
       isImporting.value = false
     }
@@ -310,7 +321,7 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto">
+  <div>
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 px-2 gap-4">
       <div>
         <h1 class="font-display text-3xl font-bold text-slate-800 mb-1">Jejak Silaturahmi</h1>
@@ -399,14 +410,14 @@ onMounted(load)
                 </p>
               </td>
               <td class="py-4 px-4">
-                <div class="flex items-center justify-center gap-1.5">
-                  <button @click="editTransaksiJejak(row)" class="p-1.5 text-slate-400 hover:text-serenity-600 hover:bg-serenity-50 rounded-lg transition-colors" title="Edit Transaksi Terakhir">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+                <div class="flex items-center justify-center gap-2">
+                  <button @click="editTransaksiJejak(row)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors" title="Edit Transaksi Terakhir">
+                    Edit
                   </button>
-                  <button @click="hapusTransaksiJejak(row)" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Semua Transaksi Ini">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                  <button @click="hapusTransaksiJejak(row)" class="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors" title="Hapus Semua Transaksi Ini">
+                    Hapus
                   </button>
-                  <button @click="viewDetail(row)" class="text-xs font-semibold text-serenity-600 bg-serenity-50 hover:bg-serenity-100 px-3 py-1.5 rounded-lg transition-colors ml-1">
+                  <button @click="viewDetail(row)" class="text-xs font-semibold text-serenity-600 bg-serenity-50 hover:bg-serenity-100 px-3 py-1.5 rounded-lg transition-colors">
                     Detail
                   </button>
                 </div>
@@ -439,20 +450,15 @@ onMounted(load)
         <form @submit.prevent="processImport" class="space-y-4">
           <div>
             <label class="block text-sm font-semibold text-slate-600 mb-1.5">Tipe Transaksi</label>
-            <select v-model="importConfig.tipe" class="input-field" required>
-              <option value="masuk">Diterima (Mereka memberi ke kita)</option>
-              <option value="keluar">Diberikan (Kita memberi ke mereka)</option>
-            </select>
+            <GlassSelect v-model="importConfig.tipe" :options="tipeOptions" />
           </div>
           <div>
             <label class="block text-sm font-semibold text-slate-600 mb-1.5">Jenis Acara</label>
-            <select v-model="importConfig.jenisAcaraLabel" class="input-field" @change="onImportJenisAcaraChange" required>
-              <option v-for="j in JENIS_ACARA_DEFAULT" :key="j.label" :value="j.label">{{ j.label }}</option>
-            </select>
+            <GlassSelect v-model="importConfig.jenisAcaraLabel" :options="jenisAcaraOptions" @change="onImportJenisAcaraChange" />
           </div>
           <div>
             <label class="block text-sm font-semibold text-slate-600 mb-1.5">Tanggal Acara</label>
-            <input v-model="importConfig.tanggalAcara" type="date" required class="input-field" />
+            <GlassDatePicker v-model="importConfig.tanggalAcara" />
           </div>
 
           <div class="pt-4 flex gap-3">
@@ -483,17 +489,17 @@ onMounted(load)
           <div class="space-y-3">
             <div v-for="t in detailTransaksi" :key="t.id" class="p-4 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-center">
               <div>
-                <p class="text-xs text-slate-400 mb-1 font-medium">{{ formatDate(t.tanggal) }}</p>
+                <p class="text-xs text-slate-400 mb-1 font-medium">{{ formatDate(t.tanggal_acara) }}</p>
                 <p class="font-bold text-slate-700 text-sm mb-0.5">{{ t.jenis_acara }}</p>
                 <p v-if="t.keterangan" class="text-xs text-slate-500 italic mt-1 bg-white px-2 py-1 rounded inline-block border border-slate-100">"{{ t.keterangan }}"</p>
               </div>
               <div class="text-right flex flex-col items-end">
                 <div class="flex items-center gap-2 mb-1.5">
-                  <button @click="editTransaksi(t.id)" class="p-1 text-slate-400 hover:text-serenity-600 hover:bg-serenity-50 rounded transition-colors" title="Edit">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+                  <button @click="editTransaksi(t.id)" class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded transition-colors" title="Edit">
+                    Edit
                   </button>
-                  <button @click="handleDelete(t.id)" class="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                  <button @click="handleDelete(t.id)" class="text-[10px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded transition-colors" title="Hapus">
+                    Hapus
                   </button>
                 </div>
                 <span 
