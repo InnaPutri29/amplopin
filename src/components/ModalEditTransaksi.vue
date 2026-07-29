@@ -1,6 +1,14 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed, onErrorCaptured } from 'vue'
 import { supabase } from '../lib/supabase'
+import { JENIS_ACARA_DEFAULT } from '../constants/jenisAcara'
+import GlassSelect from './GlassSelect.vue'
+import GlassDatePicker from './GlassDatePicker.vue'
+
+onErrorCaptured((err, instance, info) => {
+  console.warn('Caught error in ModalEditTransaksi:', err, info)
+  return false
+})
 
 const props = defineProps({
   show: Boolean,
@@ -15,10 +23,16 @@ const formData = ref({
   tipe: 'masuk',
   kontak_id: '',
   nominal: 0,
-  tanggal: '',
+  tanggal_acara: '',
   kategori_acara: 'suka_cita',
+  jenis_acara: JENIS_ACARA_DEFAULT[0].label,
   keterangan: ''
 })
+
+function onJenisAcaraChange() {
+  const found = JENIS_ACARA_DEFAULT.find((j) => j.label === formData.value.jenis_acara)
+  if (found) formData.value.kategori_acara = found.kategori_acara
+}
 
 const nominalDisplay = ref('')
 
@@ -37,7 +51,14 @@ function formatNominal(e) {
   }
 }
 
+const tipeOptions = [
+  { label: 'Diterima (Amplop Masuk)', value: 'masuk' },
+  { label: 'Diberikan (Amplop Keluar)', value: 'keluar' }
+]
+const jenisAcaraOptions = JENIS_ACARA_DEFAULT.map(j => ({ label: j.label, value: j.label }))
+
 const kontakList = ref([])
+const kontakOptions = computed(() => kontakList.value.map(k => ({ label: k.nama, value: k.id })))
 
 onMounted(async () => {
   const { data } = await supabase.from('kontak').select('id, nama').order('nama')
@@ -58,8 +79,9 @@ watch(() => props.show, async (newVal) => {
         tipe: data.tipe,
         kontak_id: data.kontak_id,
         nominal: data.nominal,
-        tanggal: data.tanggal,
+        tanggal_acara: data.tanggal_acara,
         kategori_acara: data.kategori_acara,
+        jenis_acara: data.jenis_acara || JENIS_ACARA_DEFAULT[0].label,
         keterangan: data.keterangan || ''
       }
       nominalDisplay.value = data.nominal.toLocaleString('id-ID')
@@ -76,8 +98,9 @@ async function handleSave() {
       tipe: formData.value.tipe,
       kontak_id: formData.value.kontak_id,
       nominal: formData.value.nominal,
-      tanggal: formData.value.tanggal || null,
+      tanggal_acara: formData.value.tanggal_acara || new Date().toISOString().split('T')[0],
       kategori_acara: formData.value.kategori_acara,
+      jenis_acara: formData.value.jenis_acara,
       keterangan: formData.value.keterangan || null
     })
     .eq('id', props.transaksiId)
@@ -93,64 +116,62 @@ async function handleSave() {
 </script>
 
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl relative animate-blob" style="animation-duration: 0.3s; animation-name: popIn;">
-      <button @click="emit('close')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+  <div v-if="show" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 md:p-6" @click.self="emit('close')">
+    <div class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl relative animate-blob max-h-[85vh] flex flex-col" style="animation-duration: 0.3s; animation-name: popIn;">
+      <!-- Header -->
+      <div class="px-8 pt-8 pb-5 flex justify-between items-center border-b border-slate-100">
+        <h2 class="font-display text-xl font-bold text-slate-800">Edit Transaksi</h2>
+        <button @click="emit('close')" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
       
-      <h2 class="font-display text-xl font-bold text-slate-800 mb-6">Edit Transaksi</h2>
-      
-      <div v-if="loading" class="text-center text-slate-400 py-8">Memuat data...</div>
-      
-      <form v-else @submit.prevent="handleSave" class="space-y-4">
-        <div>
-          <label class="block text-sm font-semibold text-slate-600 mb-1.5">Jenis Transaksi</label>
-          <select v-model="formData.tipe" class="input-field" required>
-            <option value="masuk">Diterima (Amplop Masuk)</option>
-            <option value="keluar">Diberikan (Amplop Keluar)</option>
-          </select>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-semibold text-slate-600 mb-1.5">Kontak</label>
-          <select v-model="formData.kontak_id" class="input-field" required>
-            <option value="" disabled>Pilih Kontak</option>
-            <option v-for="k in kontakList" :key="k.id" :value="k.id">{{ k.nama }}</option>
-          </select>
-        </div>
+      <!-- Scrollable Content -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar">
+        <div class="px-8 py-6">
+          <div v-if="loading" class="text-center text-slate-400 py-8">Memuat data...</div>
+          
+          <form v-else @submit.prevent="handleSave" class="space-y-5 pb-2">
+            <div>
+              <label class="block text-sm font-semibold text-slate-600 mb-1.5">Jenis Transaksi</label>
+              <GlassSelect v-model="formData.tipe" :options="tipeOptions" />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-semibold text-slate-600 mb-1.5">Kontak</label>
+              <GlassSelect v-model="formData.kontak_id" :options="kontakOptions" placeholder="Pilih Kontak" />
+            </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-slate-600 mb-1.5">Nominal (Rp)</label>
-          <input :value="nominalDisplay" @input="formatNominal" type="text" required class="input-field" />
-        </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-600 mb-1.5">Nominal (Rp)</label>
+              <input :value="nominalDisplay" @input="formatNominal" type="text" required class="input-field font-display font-bold text-lg" />
+            </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-slate-600 mb-1.5">Tanggal (Opsional)</label>
-          <input v-model="formData.tanggal" type="date" class="input-field" />
-        </div>
-        
-        <div>
-          <label class="block text-sm font-semibold text-slate-600 mb-1.5">Kategori Acara</label>
-          <select v-model="formData.kategori_acara" class="input-field" required>
-            <option value="suka_cita">Suka Cita (Pernikahan, Lahiran, dll)</option>
-            <option value="duka">Duka (Meninggal, Sakit, dll)</option>
-          </select>
-        </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-600 mb-1.5">Tanggal (Opsional)</label>
+              <GlassDatePicker v-model="formData.tanggal_acara" />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-semibold text-slate-600 mb-1.5">Jenis Acara</label>
+              <GlassSelect v-model="formData.jenis_acara" :options="jenisAcaraOptions" @change="onJenisAcaraChange" />
+            </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-slate-600 mb-1.5">Keterangan (Opsional)</label>
-          <input v-model="formData.keterangan" type="text" placeholder="Contoh: Nikahan Budi" class="input-field" />
-        </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-600 mb-1.5">Keterangan (Opsional)</label>
+              <input v-model="formData.keterangan" type="text" placeholder="Contoh: Nikahan Budi" class="input-field" />
+            </div>
 
-        <div class="pt-4">
-          <button type="submit" class="btn-primary w-full" :disabled="saving">
-            {{ saving ? 'Menyimpan...' : 'Simpan Perubahan' }}
-          </button>
+            <div class="pt-6">
+              <button type="submit" class="btn-primary w-full py-3 text-base shadow-lg shadow-serenity-500/30" :disabled="saving">
+                {{ saving ? 'Menyimpan...' : 'Simpan Perubahan' }}
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
@@ -159,5 +180,20 @@ async function handleSave() {
 @keyframes popIn {
   0% { transform: scale(0.95); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 16px 0;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 20px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
 }
 </style>

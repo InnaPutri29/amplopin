@@ -1,9 +1,16 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onErrorCaptured } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
 import { JENIS_ACARA_DEFAULT } from '../constants/jenisAcara'
+import GlassSelect from '../components/GlassSelect.vue'
+import GlassDatePicker from '../components/GlassDatePicker.vue'
+
+onErrorCaptured((err, instance, info) => {
+  console.warn('Caught error in TransaksiBaru:', err, info)
+  return false // stop propagation
+})
 
 const router = useRouter()
 const { user } = useAuth()
@@ -14,6 +21,8 @@ const hasilKontak = ref([])
 const kontakTerpilih = ref(null)
 const showDropdown = ref(false)
 const alamatBaru = ref('')
+
+const jenisAcaraOptions = JENIS_ACARA_DEFAULT.map(j => ({ label: j.label, value: j.label }))
 
 const jenisAcaraLabel = ref(JENIS_ACARA_DEFAULT[0].label)
 const kategoriAcara = ref(JENIS_ACARA_DEFAULT[0].kategori_acara)
@@ -120,7 +129,7 @@ async function simpanTransaksi() {
     tipe: tipe.value,
     kategori_acara: kategoriAcara.value,
     jenis_acara: jenisAcaraLabel.value,
-    tanggal_acara: tanggalAcara.value || null,
+    tanggal_acara: tanggalAcara.value || new Date().toISOString().split('T')[0],
     nominal: nominalValue.value,
     keterangan: keterangan.value || null,
   })
@@ -136,7 +145,7 @@ async function simpanTransaksi() {
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto">
+  <div>
     <div class="mb-6 px-2">
       <h1 class="font-display text-3xl font-bold text-slate-800">Catat Amplop</h1>
       <p class="text-slate-500 text-sm mt-1">Tambahkan catatan pemasukan atau pengeluaran baru.</p>
@@ -210,15 +219,13 @@ async function simpanTransaksi() {
 
         <div>
           <label class="block text-sm font-semibold text-slate-600 mb-1.5">Jenis Acara</label>
-          <select v-model="jenisAcaraLabel" class="input-field" @change="onJenisAcaraChange">
-            <option v-for="j in JENIS_ACARA_DEFAULT" :key="j.label" :value="j.label">{{ j.label }}</option>
-          </select>
+          <GlassSelect v-model="jenisAcaraLabel" :options="jenisAcaraOptions" @change="onJenisAcaraChange" />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-semibold text-slate-600 mb-1.5">Tanggal (Opsional)</label>
-            <input v-model="tanggalAcara" type="date" class="input-field" />
+            <GlassDatePicker v-model="tanggalAcara" />
           </div>
 
           <div>

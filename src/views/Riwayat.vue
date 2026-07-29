@@ -24,13 +24,14 @@ async function loadRiwayat() {
       id,
       tipe,
       nominal,
-      tanggal,
+      tanggal_acara,
       keterangan,
       kategori_acara,
-      kontak:kontak_id ( nama, no_hp, alamat )
+      jenis_acara,
+      kontak:kontak_id ( nama, no_hp, alamat_lengkap )
     `)
     .eq('keluarga_id', user.value.id)
-    .order('tanggal', { ascending: false })
+    .order('tanggal_acara', { ascending: false })
     .order('created_at', { ascending: false })
 
   if (!error) riwayat.value = data
@@ -64,7 +65,7 @@ function exportToPDF() {
   
   const headers = [['Tanggal', 'Kontak', 'Kategori', 'Jenis', 'Nominal', 'Keterangan']]
   const rows = riwayat.value.map(item => [
-    formatDate(item.tanggal),
+    formatDate(item.tanggal_acara),
     item.kontak?.nama || 'Tanpa Kontak',
     item.kategori_acara.replace('_', ' '),
     item.tipe === 'masuk' ? 'Diterima' : 'Diberikan',
@@ -100,11 +101,11 @@ async function handleDelete(id) {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto">
+  <div>
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       <div>
-        <h1 class="font-display text-3xl font-bold text-slate-800 mb-1">Riwayat Transaksi</h1>
-        <p class="text-slate-500 text-sm">Lihat, ubah, atau hapus seluruh catatan amplop.</p>
+        <h1 class="font-display text-3xl font-bold text-slate-800">Riwayat Transaksi</h1>
+        <p class="text-slate-500 text-sm mt-1">Lihat, ubah, atau hapus seluruh catatan amplop.</p>
       </div>
       <div class="flex items-center gap-2">
 
@@ -129,54 +130,84 @@ async function handleDelete(id) {
         Belum ada catatan amplop.
       </div>
       
-      <div v-else class="overflow-x-auto">
+      <!-- Desktop Table -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider">
               <th class="py-3 px-4 font-semibold">Tanggal</th>
               <th class="py-3 px-4 font-semibold">Kontak</th>
-              <th class="py-3 px-4 font-semibold">Jenis & Acara</th>
+              <th class="py-3 px-4 font-semibold">Jenis</th>
+              <th class="py-3 px-4 font-semibold">Acara</th>
               <th class="py-3 px-4 font-semibold text-right">Nominal</th>
               <th class="py-3 px-4 font-semibold text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="item in riwayat" :key="item.id" class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-              <td class="py-4 px-4 text-sm text-slate-700">{{ formatDate(item.tanggal) }}</td>
+              <td class="py-4 px-4 text-sm text-slate-700">{{ formatDate(item.tanggal_acara) }}</td>
               <td class="py-4 px-4 text-sm font-medium text-slate-800">
                 {{ item.kontak?.nama || 'Tanpa Kontak' }}
               </td>
               <td class="py-4 px-4 text-sm">
-                <div class="flex flex-col gap-1">
-                  <span 
-                    class="inline-block px-2 py-0.5 rounded text-[10px] font-bold w-fit"
-                    :class="item.tipe === 'masuk' ? 'bg-serenity-100 text-serenity-700' : 'bg-quartz-100 text-quartz-700'"
-                  >
-                    {{ item.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
-                  </span>
-                  <span class="text-slate-500 text-xs">{{ item.kategori_acara.replace('_', ' ') }}</span>
-                </div>
+                <span 
+                  class="inline-block px-2 py-0.5 rounded text-[10px] font-bold"
+                  :class="item.tipe === 'masuk' ? 'bg-serenity-100 text-serenity-700' : 'bg-quartz-100 text-quartz-700'"
+                >
+                  {{ item.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
+                </span>
+              </td>
+              <td class="py-4 px-4 text-sm text-slate-600 font-medium">
+                {{ item.jenis_acara || item.kategori_acara.replace('_', ' ') }}
               </td>
               <td class="py-4 px-4 text-sm text-right font-display font-bold" :class="item.tipe === 'masuk' ? 'text-serenity-600' : 'text-quartz-600'">
                 {{ formatRupiah(item.nominal) }}
               </td>
               <td class="py-4 px-4">
                 <div class="flex items-center justify-center gap-2">
-                  <button @click="editTransaksi(item.id)" class="p-1.5 text-slate-400 hover:text-serenity-600 hover:bg-serenity-50 rounded-lg transition-colors" title="Edit">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                    </svg>
+                  <button @click="editTransaksi(item.id)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors" title="Edit">
+                    Edit
                   </button>
-                  <button @click="handleDelete(item.id)" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                    </svg>
+                  <button @click="handleDelete(item.id)" class="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors" title="Hapus">
+                    Hapus
                   </button>
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="md:hidden divide-y divide-slate-100">
+        <div v-for="item in riwayat" :key="'mobile-'+item.id" class="py-4">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h3 class="font-bold text-slate-800 text-base">{{ item.kontak?.nama || 'Tanpa Kontak' }}</h3>
+              <p class="text-xs text-slate-500 mt-0.5">{{ formatDate(item.tanggal_acara) }} • {{ item.jenis_acara || item.kategori_acara.replace('_', ' ') }}</p>
+            </div>
+            <span 
+              class="inline-block px-2 py-1 rounded-lg text-[10px] font-bold tracking-wider"
+              :class="item.tipe === 'masuk' ? 'bg-serenity-100 text-serenity-700' : 'bg-quartz-100 text-quartz-700'"
+            >
+              {{ item.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
+            </span>
+          </div>
+          
+          <div class="flex items-end justify-between mt-4">
+            <p class="font-display font-bold text-lg" :class="item.tipe === 'masuk' ? 'text-serenity-600' : 'text-quartz-600'">
+              {{ formatRupiah(item.nominal) }}
+            </p>
+            <div class="flex gap-2">
+              <button @click="editTransaksi(item.id)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors">
+                Edit
+              </button>
+              <button @click="handleDelete(item.id)" class="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     

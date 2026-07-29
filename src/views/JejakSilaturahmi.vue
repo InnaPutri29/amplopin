@@ -5,6 +5,8 @@ import { KATEGORI_LABEL } from '../constants/jenisAcara'
 import { useAuth } from '../composables/useAuth'
 import { JENIS_ACARA_DEFAULT } from '../constants/jenisAcara'
 import ModalEditTransaksi from '../components/ModalEditTransaksi.vue'
+import GlassSelect from '../components/GlassSelect.vue'
+import GlassDatePicker from '../components/GlassDatePicker.vue'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
 import * as XLSX from 'xlsx'
 
@@ -12,6 +14,12 @@ const { user } = useAuth()
 const data = ref([])
 const loading = ref(true)
 const filterKategori = ref('suka_cita')
+
+const tipeOptions = [
+  { label: 'Diterima (Mereka memberi ke kita)', value: 'masuk' },
+  { label: 'Diberikan (Kita memberi ke mereka)', value: 'keluar' }
+]
+const jenisAcaraOptions = JENIS_ACARA_DEFAULT.map(j => ({ label: j.label, value: j.label }))
 const searchQuery = ref('')
 
 const showDetailModal = ref(false)
@@ -33,7 +41,7 @@ async function editTransaksiJejak(row) {
     .eq('kontak_id', row.kontak_id)
     .eq('kategori_acara', filterKategori.value)
     .eq('tipe', 'masuk')
-    .order('tanggal', { ascending: false })
+    .order('tanggal_acara', { ascending: false })
     .limit(1)
     .single()
     
@@ -100,12 +108,12 @@ async function viewDetail(row) {
   
   const { data, error } = await supabase
     .from('transaksi')
-    .select('id, tipe, nominal, tanggal, keterangan, jenis_acara')
+    .select('id, tipe, nominal, tanggal_acara, keterangan, jenis_acara')
     .eq('keluarga_id', user.value.id)
     .eq('kontak_id', row.kontak_id)
     .eq('kategori_acara', filterKategori.value)
     .eq('tipe', 'masuk')
-    .order('tanggal', { ascending: false })
+    .order('tanggal_acara', { ascending: false })
     
   if (error) {
     alert('Gagal memuat rincian: ' + error.message)
@@ -225,7 +233,7 @@ async function processImport() {
           tipe: importConfig.value.tipe,
           kategori_acara: importConfig.value.kategoriAcara,
           jenis_acara: importConfig.value.jenisAcaraLabel,
-          tanggal: importConfig.value.tanggalAcara,
+          tanggal_acara: importConfig.value.tanggalAcara,
           nominal: nominal,
           keterangan: 'Hasil Impor Excel'
         })
@@ -310,11 +318,11 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 px-2 gap-4">
+  <div>
+    <div class="flex flex-col sm:flex-row justify-between items-start mb-8 gap-4">
       <div>
-        <h1 class="font-display text-3xl font-bold text-slate-800 mb-1">Jejak Silaturahmi</h1>
-        <p class="text-slate-500 text-sm">Daftar total pemasukan amplop dari setiap kontak.</p>
+        <h1 class="font-display text-3xl font-bold text-slate-800">Laporan Amplop Masuk</h1>
+        <p class="text-slate-500 text-sm mt-1">Daftar total pemasukan amplop dari setiap kontak.</p>
       </div>
       <div class="flex items-center gap-2">
         <button @click="downloadTemplate" class="flex items-center gap-2 bg-white text-slate-600 font-semibold px-3 py-2 rounded-xl shadow-sm hover:shadow-md border border-slate-100 transition-all text-sm">
@@ -374,7 +382,8 @@ onMounted(load)
         </div>
         Belum ada data yang sesuai.
       </div>
-      <div v-else class="overflow-x-auto">
+      <!-- Desktop Table -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider">
@@ -399,14 +408,14 @@ onMounted(load)
                 </p>
               </td>
               <td class="py-4 px-4">
-                <div class="flex items-center justify-center gap-1.5">
-                  <button @click="editTransaksiJejak(row)" class="p-1.5 text-slate-400 hover:text-serenity-600 hover:bg-serenity-50 rounded-lg transition-colors" title="Edit Transaksi Terakhir">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+                <div class="flex items-center justify-center gap-2">
+                  <button @click="editTransaksiJejak(row)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors" title="Edit Transaksi Terakhir">
+                    Edit
                   </button>
-                  <button @click="hapusTransaksiJejak(row)" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Semua Transaksi Ini">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                  <button @click="hapusTransaksiJejak(row)" class="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors" title="Hapus Semua Transaksi Ini">
+                    Hapus
                   </button>
-                  <button @click="viewDetail(row)" class="text-xs font-semibold text-serenity-600 bg-serenity-50 hover:bg-serenity-100 px-3 py-1.5 rounded-lg transition-colors ml-1">
+                  <button @click="viewDetail(row)" class="text-xs font-semibold text-serenity-600 bg-serenity-50 hover:bg-serenity-100 px-3 py-1.5 rounded-lg transition-colors">
                     Detail
                   </button>
                 </div>
@@ -414,6 +423,45 @@ onMounted(load)
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="md:hidden divide-y divide-slate-100">
+        <div v-for="(row, index) in filteredData" :key="'mobile-'+row.kontak_id" class="py-4">
+          <div class="flex justify-between items-start mb-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                {{ index + 1 }}
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-800">{{ row.nama_kontak }}</h3>
+                <p class="text-xs text-slate-500">{{ row.alamat || '-' }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-4 bg-slate-50 p-3 rounded-xl border border-slate-100 mb-4 flex justify-between items-center">
+            <span class="text-xs font-semibold text-slate-500">Jumlah Uang</span>
+            <p 
+              class="font-display font-bold text-lg"
+              :class="row.saldo > 0 ? 'text-quartz-600' : row.saldo < 0 ? 'text-serenity-600' : 'text-slate-400'"
+            >
+              {{ formatRupiah(row.saldo) }}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button @click="editTransaksiJejak(row)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 py-2 rounded-lg transition-colors">
+              Edit
+            </button>
+            <button @click="hapusTransaksiJejak(row)" class="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 py-2 rounded-lg transition-colors">
+              Hapus
+            </button>
+            <button @click="viewDetail(row)" class="text-xs font-semibold text-serenity-600 bg-serenity-50 hover:bg-serenity-100 py-2 rounded-lg transition-colors">
+              Detail
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -439,20 +487,15 @@ onMounted(load)
         <form @submit.prevent="processImport" class="space-y-4">
           <div>
             <label class="block text-sm font-semibold text-slate-600 mb-1.5">Tipe Transaksi</label>
-            <select v-model="importConfig.tipe" class="input-field" required>
-              <option value="masuk">Diterima (Mereka memberi ke kita)</option>
-              <option value="keluar">Diberikan (Kita memberi ke mereka)</option>
-            </select>
+            <GlassSelect v-model="importConfig.tipe" :options="tipeOptions" />
           </div>
           <div>
             <label class="block text-sm font-semibold text-slate-600 mb-1.5">Jenis Acara</label>
-            <select v-model="importConfig.jenisAcaraLabel" class="input-field" @change="onImportJenisAcaraChange" required>
-              <option v-for="j in JENIS_ACARA_DEFAULT" :key="j.label" :value="j.label">{{ j.label }}</option>
-            </select>
+            <GlassSelect v-model="importConfig.jenisAcaraLabel" :options="jenisAcaraOptions" @change="onImportJenisAcaraChange" />
           </div>
           <div>
             <label class="block text-sm font-semibold text-slate-600 mb-1.5">Tanggal Acara</label>
-            <input v-model="importConfig.tanggalAcara" type="date" required class="input-field" />
+            <GlassDatePicker v-model="importConfig.tanggalAcara" />
           </div>
 
           <div class="pt-4 flex gap-3">
@@ -466,45 +509,55 @@ onMounted(load)
     </div>
 
     <!-- Detail Modal -->
-    <div v-if="showDetailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-      <div class="bg-white rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative max-h-[90vh] flex flex-col">
-        <button @click="showDetailModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+    <div v-if="showDetailModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 md:p-6" @click.self="showDetailModal = false">
+      <div class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl relative animate-blob max-h-[85vh] flex flex-col" style="animation-duration: 0.3s; animation-name: popIn;">
         
-        <h2 class="font-display text-xl font-bold text-slate-800 mb-1">Rincian Transaksi</h2>
-        <p class="text-sm text-slate-500 mb-6">Kontak: <strong>{{ selectedKontakDetail?.nama_kontak }}</strong> ({{ filterKategori === 'suka_cita' ? 'Suka Cita' : 'Duka' }})</p>
+        <!-- Header -->
+        <div class="px-8 pt-8 pb-5 flex justify-between items-start border-b border-slate-100">
+          <div>
+            <h2 class="font-display text-xl font-bold text-slate-800 mb-1">Rincian Transaksi</h2>
+            <p class="text-sm text-slate-500">
+              Kontak: <strong class="text-slate-700">{{ selectedKontakDetail?.nama_kontak }}</strong> ({{ filterKategori === 'suka_cita' ? 'Suka Cita' : 'Duka' }})
+            </p>
+          </div>
+          <button @click="showDetailModal = false" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors flex-shrink-0 mt-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
         
-        <div v-if="loadingDetail" class="text-center text-slate-400 py-8 animate-pulse">Memuat rincian...</div>
-        <div v-else-if="detailTransaksi.length === 0" class="text-center text-slate-400 py-8">Tidak ada data.</div>
-        <div v-else class="overflow-y-auto flex-1 pr-2">
-          <div class="space-y-3">
-            <div v-for="t in detailTransaksi" :key="t.id" class="p-4 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-center">
-              <div>
-                <p class="text-xs text-slate-400 mb-1 font-medium">{{ formatDate(t.tanggal) }}</p>
-                <p class="font-bold text-slate-700 text-sm mb-0.5">{{ t.jenis_acara }}</p>
-                <p v-if="t.keterangan" class="text-xs text-slate-500 italic mt-1 bg-white px-2 py-1 rounded inline-block border border-slate-100">"{{ t.keterangan }}"</p>
-              </div>
-              <div class="text-right flex flex-col items-end">
-                <div class="flex items-center gap-2 mb-1.5">
-                  <button @click="editTransaksi(t.id)" class="p-1 text-slate-400 hover:text-serenity-600 hover:bg-serenity-50 rounded transition-colors" title="Edit">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
-                  </button>
-                  <button @click="handleDelete(t.id)" class="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
-                  </button>
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+          <div class="px-8 py-6">
+            <div v-if="loadingDetail" class="text-center text-slate-400 py-8 animate-pulse">Memuat rincian...</div>
+            <div v-else-if="detailTransaksi.length === 0" class="text-center text-slate-400 py-8">Tidak ada data.</div>
+            <div v-else class="space-y-4">
+              <div v-for="t in detailTransaksi" :key="t.id" class="p-4 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-start">
+                <div class="flex-1 pr-4">
+                  <p class="text-[11px] text-slate-400 mb-1 font-medium">{{ formatDate(t.tanggal_acara) }}</p>
+                  <p class="font-bold text-slate-700 text-sm mb-1.5">{{ t.jenis_acara }}</p>
+                  <p v-if="t.keterangan" class="text-xs text-slate-500 italic bg-white px-2 py-1.5 rounded-lg border border-slate-100 inline-block">"{{ t.keterangan }}"</p>
                 </div>
-                <span 
-                  class="inline-block px-2 py-0.5 rounded text-[10px] font-bold mb-1"
-                  :class="t.tipe === 'masuk' ? 'bg-serenity-100 text-serenity-700' : 'bg-quartz-100 text-quartz-700'"
-                >
-                  {{ t.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
-                </span>
-                <p class="font-display font-bold text-sm" :class="t.tipe === 'masuk' ? 'text-serenity-600' : 'text-quartz-600'">
-                  {{ formatRupiah(t.nominal) }}
-                </p>
+                <div class="text-right flex flex-col items-end flex-shrink-0">
+                  <div class="flex items-center gap-1.5 mb-2">
+                    <button @click="editTransaksi(t.id)" class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-md transition-colors" title="Edit">
+                      Edit
+                    </button>
+                    <button @click="handleDelete(t.id)" class="text-[10px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md transition-colors" title="Hapus">
+                      Hapus
+                    </button>
+                  </div>
+                  <span 
+                    class="inline-block px-2 py-0.5 rounded text-[10px] font-bold mb-1.5"
+                    :class="t.tipe === 'masuk' ? 'bg-serenity-100 text-serenity-700' : 'bg-quartz-100 text-quartz-700'"
+                  >
+                    {{ t.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
+                  </span>
+                  <p class="font-display font-bold text-[15px]" :class="t.tipe === 'masuk' ? 'text-serenity-600' : 'text-quartz-600'">
+                    {{ formatRupiah(t.nominal) }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

@@ -45,7 +45,8 @@ async function loadData() {
     .from('transaksi')
     .select('*')
     .eq('kontak_id', kontakId)
-    .order('tanggal', { ascending: false })
+    .order('tanggal_acara', { ascending: false })
+    .order('created_at', { ascending: false })
     
   if (riwayatData) {
     riwayat.value = riwayatData
@@ -80,7 +81,7 @@ onMounted(loadData)
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto">
+  <div>
     <button @click="router.back()" class="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-semibold mb-6 transition-colors">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -144,14 +145,14 @@ onMounted(loadData)
                 >
                   {{ item.tipe === 'masuk' ? 'KITA TERIMA DARI MEREKA' : 'KITA BERIKAN KE MEREKA' }}
                 </span>
-                <p class="text-slate-800 font-bold">{{ item.kategori_acara.replace('_', ' ') }}</p>
+                <p class="text-slate-800 font-bold">{{ item.jenis_acara || item.kategori_acara.replace('_', ' ') }}</p>
               </div>
               <p class="font-display font-bold text-lg" :class="item.tipe === 'masuk' ? 'text-serenity-600' : 'text-quartz-600'">
                 {{ item.tipe === 'masuk' ? '+' : '-' }} {{ formatRupiah(item.nominal) }}
               </p>
             </div>
             
-            <p class="text-xs font-medium text-slate-400 mb-1">{{ formatDate(item.tanggal) }}</p>
+            <p class="text-xs font-medium text-slate-400 mb-1">{{ formatDate(item.tanggal_acara) }}</p>
             <p v-if="item.keterangan" class="text-sm text-slate-600 italic bg-slate-50 p-3 rounded-xl mt-2">"{{ item.keterangan }}"</p>
           </div>
         </div>

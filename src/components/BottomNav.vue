@@ -5,23 +5,26 @@ import {
   UsersIcon, 
   PlusCircleIcon, 
   ChartBarIcon,
-  ListBulletIcon
+  ListBulletIcon,
+  UserCircleIcon
 } from '@heroicons/vue/24/outline'
 import {
   HomeIcon as HomeIconSolid,
   UsersIcon as UsersIconSolid,
   PlusCircleIcon as PlusCircleIconSolid,
   ChartBarIcon as ChartBarIconSolid,
-  ListBulletIcon as ListBulletIconSolid
+  ListBulletIcon as ListBulletIconSolid,
+  UserCircleIcon as UserCircleIconSolid
 } from '@heroicons/vue/24/solid'
 
 const route = useRoute()
 const items = [
-  { to: '/', label: 'Beranda', name: 'dashboard', icon: HomeIcon, iconSolid: HomeIconSolid },
+  { to: '/', label: 'Dasbor', name: 'dashboard', icon: HomeIcon, iconSolid: HomeIconSolid },
   { to: '/kontak', label: 'Kontak', name: 'kontak', icon: UsersIcon, iconSolid: UsersIconSolid },
   { to: '/catat', label: 'Tambah', name: 'catat', icon: PlusCircleIcon, iconSolid: PlusCircleIconSolid },
-  { to: '/jejak', label: 'Jejak', name: 'jejak', icon: ChartBarIcon, iconSolid: ChartBarIconSolid },
+  { to: '/jejak', label: 'Laporan', name: 'jejak', icon: ChartBarIcon, iconSolid: ChartBarIconSolid },
   { to: '/riwayat', label: 'Riwayat', name: 'riwayat', icon: ListBulletIcon, iconSolid: ListBulletIconSolid },
+  { to: '/profil', label: 'Profil', name: 'profil', icon: UserCircleIcon, iconSolid: UserCircleIconSolid },
 ]
 </script>
 
