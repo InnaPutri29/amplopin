@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
-import { showAlert, showConfirm } from '../utils/alert'
 
 const route = useRoute()
 const router = useRouter()
@@ -59,14 +58,12 @@ async function loadData() {
 }
 
 async function hapusKontak() {
-  const { data: count } = await supabase.from('transaksi').select('id', { count: 'exact' }).eq('kontak_id', kontak.value.id)
-  if (count && count.length > 0) {
-    showAlert('Tidak Dapat Menghapus', 'Tidak dapat menghapus kontak yang sudah memiliki riwayat transaksi. Hapus riwayat transaksi dengan kontak ini terlebih dahulu di halaman Riwayat.', 'error')
+  if (riwayat.value.length > 0) {
+    alert('Tidak dapat menghapus kontak yang sudah memiliki riwayat transaksi. Hapus riwayat transaksi dengan kontak ini terlebih dahulu di halaman Riwayat.')
     return
   }
-  
-  const confirmed = await showConfirm('Hapus Kontak?', 'Apakah Anda yakin ingin menghapus kontak ini secara permanen?')
-  if (!confirmed) return
+
+  if (!confirm('Apakah Anda yakin ingin menghapus kontak ini secara permanen?')) return
 
   const { error } = await supabase
     .from('kontak')
@@ -74,9 +71,9 @@ async function hapusKontak() {
     .eq('id', kontakId)
 
   if (!error) {
-    router.replace('/')
+    router.push('/kontak')
   } else {
-    showAlert('Gagal Menghapus', 'Gagal menghapus kontak: ' + error.message, 'error')
+    alert('Gagal menghapus kontak: ' + error.message)
   }
 }
 
@@ -148,7 +145,7 @@ onMounted(loadData)
                 >
                   {{ item.tipe === 'masuk' ? 'KITA TERIMA DARI MEREKA' : 'KITA BERIKAN KE MEREKA' }}
                 </span>
-                <p class="text-slate-800 font-bold">{{ item.kategori_acara.replace('_', ' ') }}</p>
+                <p class="text-slate-800 font-bold">{{ item.jenis_acara || item.kategori_acara.replace('_', ' ') }}</p>
               </div>
               <p class="font-display font-bold text-lg" :class="item.tipe === 'masuk' ? 'text-serenity-600' : 'text-quartz-600'">
                 {{ item.tipe === 'masuk' ? '+' : '-' }} {{ formatRupiah(item.nominal) }}

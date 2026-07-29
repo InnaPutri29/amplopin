@@ -2,7 +2,6 @@
 import { ref, onMounted, computed } from 'vue'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
-import { showAlert, showConfirm } from '../utils/alert'
 import ModalEditTransaksi from '../components/ModalEditTransaksi.vue'
 
 const { user } = useAuth()
@@ -28,6 +27,7 @@ async function loadRiwayat() {
       tanggal_acara,
       keterangan,
       kategori_acara,
+      jenis_acara,
       kontak:kontak_id ( nama, no_hp, alamat_lengkap )
     `)
     .eq('keluarga_id', user.value.id)
@@ -85,8 +85,7 @@ function exportToPDF() {
 }
 
 async function handleDelete(id) {
-  const confirmed = await showConfirm('Hapus Catatan?', 'Apakah Anda yakin ingin menghapus catatan amplop ini?')
-  if (!confirmed) return
+  if (!confirm('Apakah Anda yakin ingin menghapus catatan ini?')) return
   
   const { error } = await supabase
     .from('transaksi')
@@ -96,7 +95,7 @@ async function handleDelete(id) {
   if (!error) {
     loadRiwayat()
   } else {
-    Swal.fire('Gagal Menghapus', 'Terjadi kesalahan saat menghapus catatan.', 'error')
+    alert('Gagal menghapus catatan.')
   }
 }
 </script>
@@ -137,7 +136,8 @@ async function handleDelete(id) {
             <tr class="border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider">
               <th class="py-3 px-4 font-semibold">Tanggal</th>
               <th class="py-3 px-4 font-semibold">Kontak</th>
-              <th class="py-3 px-4 font-semibold">Jenis & Acara</th>
+              <th class="py-3 px-4 font-semibold">Jenis</th>
+              <th class="py-3 px-4 font-semibold">Acara</th>
               <th class="py-3 px-4 font-semibold text-right">Nominal</th>
               <th class="py-3 px-4 font-semibold text-center">Aksi</th>
             </tr>
@@ -149,15 +149,15 @@ async function handleDelete(id) {
                 {{ item.kontak?.nama || 'Tanpa Kontak' }}
               </td>
               <td class="py-4 px-4 text-sm">
-                <div class="flex flex-col gap-1">
-                  <span 
-                    class="inline-block px-2 py-0.5 rounded text-[10px] font-bold w-fit"
-                    :class="item.tipe === 'masuk' ? 'bg-serenity-100 text-serenity-700' : 'bg-quartz-100 text-quartz-700'"
-                  >
-                    {{ item.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
-                  </span>
-                  <span class="text-slate-500 text-xs">{{ item.kategori_acara.replace('_', ' ') }}</span>
-                </div>
+                <span 
+                  class="inline-block px-2 py-0.5 rounded text-[10px] font-bold"
+                  :class="item.tipe === 'masuk' ? 'bg-serenity-100 text-serenity-700' : 'bg-quartz-100 text-quartz-700'"
+                >
+                  {{ item.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
+                </span>
+              </td>
+              <td class="py-4 px-4 text-sm text-slate-600 font-medium">
+                {{ item.jenis_acara || item.kategori_acara.replace('_', ' ') }}
               </td>
               <td class="py-4 px-4 text-sm text-right font-display font-bold" :class="item.tipe === 'masuk' ? 'text-serenity-600' : 'text-quartz-600'">
                 {{ formatRupiah(item.nominal) }}

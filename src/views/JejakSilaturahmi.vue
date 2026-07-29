@@ -8,7 +8,6 @@ import ModalEditTransaksi from '../components/ModalEditTransaksi.vue'
 import GlassSelect from '../components/GlassSelect.vue'
 import GlassDatePicker from '../components/GlassDatePicker.vue'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
-import { showAlert, showConfirm } from '../utils/alert'
 import * as XLSX from 'xlsx'
 
 const { user } = useAuth()
@@ -50,13 +49,12 @@ async function editTransaksiJejak(row) {
     selectedTransaksiId.value = data.id
     showEditModal.value = true
   } else {
-    showAlert('Tidak Ditemukan', 'Data transaksi tidak ditemukan.', 'error')
+    alert('Data transaksi tidak ditemukan.')
   }
 }
 
 async function hapusTransaksiJejak(row) {
-  const confirmed = await showConfirm('Hapus Catatan?', `Hapus catatan amplop masuk untuk "${row.nama_kontak}"?`)
-  if (!confirmed) return
+  if (!confirm(`Hapus catatan amplop masuk untuk "${row.nama_kontak}"?`)) return
   
   const { error } = await supabase
     .from('transaksi')
@@ -69,7 +67,7 @@ async function hapusTransaksiJejak(row) {
   if (!error) {
     load()
   } else {
-    showAlert('Gagal Menghapus', 'Gagal menghapus: ' + error.message, 'error')
+    alert('Gagal menghapus: ' + error.message)
   }
 }
 
@@ -79,8 +77,7 @@ function editTransaksi(id) {
 }
 
 async function handleDelete(id) {
-  const confirmed = await showConfirm('Hapus Catatan?', 'Apakah Anda yakin ingin menghapus catatan ini?')
-  if (!confirmed) return
+  if (!confirm('Apakah Anda yakin ingin menghapus catatan ini?')) return
   
   const { error } = await supabase
     .from('transaksi')
@@ -93,7 +90,7 @@ async function handleDelete(id) {
     }
     load()
   } else {
-    showAlert('Gagal Menghapus', 'Gagal menghapus catatan.', 'error')
+    alert('Gagal menghapus catatan.')
   }
 }
 
@@ -119,7 +116,7 @@ async function viewDetail(row) {
     .order('tanggal_acara', { ascending: false })
     
   if (error) {
-    showAlert('Gagal Memuat', 'Gagal memuat rincian: ' + error.message, 'error')
+    alert('Gagal memuat rincian: ' + error.message)
     detailTransaksi.value = []
   } else {
     detailTransaksi.value = data || []
@@ -244,12 +241,12 @@ async function processImport() {
         importedCount++
       }
       
-      showAlert('Impor Berhasil', `Berhasil mengimpor ${importedCount} catatan.`, 'success')
+      alert(`Berhasil mengimpor ${importedCount} catatan.`)
       showImportModal.value = false
       importFile.value = null
       load()
     } catch (err) {
-      showAlert('Gagal Impor', 'Gagal memproses file Excel: ' + err.message, 'error')
+      alert('Gagal memproses file Excel: ' + err.message)
     } finally {
       isImporting.value = false
     }

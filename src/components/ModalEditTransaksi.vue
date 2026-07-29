@@ -4,7 +4,6 @@ import { supabase } from '../lib/supabase'
 import { JENIS_ACARA_DEFAULT } from '../constants/jenisAcara'
 import GlassSelect from './GlassSelect.vue'
 import GlassDatePicker from './GlassDatePicker.vue'
-import { showAlert } from '../utils/alert'
 
 const props = defineProps({
   show: Boolean,
@@ -106,7 +105,7 @@ async function handleSave() {
     emit('updated')
     emit('close')
   } else {
-    showAlert('Gagal Menyimpan', 'Gagal menyimpan perubahan: ' + error.message, 'error')
+    alert('Gagal menyimpan perubahan: ' + error.message)
   }
 }
 </script>
