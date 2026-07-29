@@ -75,7 +75,7 @@ const handleLogout = async () => {
           :class="isActive('/jejak') ? 'bg-slate-900 text-white shadow-md font-bold' : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-900 font-medium'"
         >
           <component :is="isActive('/jejak') ? ChartBarIconSolid : ChartBarIcon" class="w-6 h-6" />
-          <span>Jejak</span>
+          <span>Laporan</span>
         </RouterLink>
 
         <RouterLink 
@@ -89,7 +89,7 @@ const handleLogout = async () => {
       </nav>
     </div>
 
-    <div class="mt-auto space-y-2">
+    <div class="mt-auto space-y-2 pt-5 border-t border-slate-200/60">
       <RouterLink 
         to="/profil" 
         class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300"

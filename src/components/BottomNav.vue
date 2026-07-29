@@ -22,7 +22,7 @@ const items = [
   { to: '/', label: 'Dasbor', name: 'dashboard', icon: HomeIcon, iconSolid: HomeIconSolid },
   { to: '/kontak', label: 'Kontak', name: 'kontak', icon: UsersIcon, iconSolid: UsersIconSolid },
   { to: '/catat', label: 'Tambah', name: 'catat', icon: PlusCircleIcon, iconSolid: PlusCircleIconSolid },
-  { to: '/jejak', label: 'Jejak', name: 'jejak', icon: ChartBarIcon, iconSolid: ChartBarIconSolid },
+  { to: '/jejak', label: 'Laporan', name: 'jejak', icon: ChartBarIcon, iconSolid: ChartBarIconSolid },
   { to: '/riwayat', label: 'Riwayat', name: 'riwayat', icon: ListBulletIcon, iconSolid: ListBulletIconSolid },
   { to: '/profil', label: 'Profil', name: 'profil', icon: UserCircleIcon, iconSolid: UserCircleIconSolid },
 ]

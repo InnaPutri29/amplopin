@@ -319,10 +319,10 @@ onMounted(load)
 
 <template>
   <div>
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 px-2 gap-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start mb-8 gap-4">
       <div>
-        <h1 class="font-display text-3xl font-bold text-slate-800 mb-1">Jejak Silaturahmi</h1>
-        <p class="text-slate-500 text-sm">Daftar total pemasukan amplop dari setiap kontak.</p>
+        <h1 class="font-display text-3xl font-bold text-slate-800">Laporan Amplop Masuk</h1>
+        <p class="text-slate-500 text-sm mt-1">Daftar total pemasukan amplop dari setiap kontak.</p>
       </div>
       <div class="flex items-center gap-2">
         <button @click="downloadTemplate" class="flex items-center gap-2 bg-white text-slate-600 font-semibold px-3 py-2 rounded-xl shadow-sm hover:shadow-md border border-slate-100 transition-all text-sm">

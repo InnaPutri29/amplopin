@@ -104,8 +104,8 @@ async function handleDelete(id) {
   <div>
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       <div>
-        <h1 class="font-display text-3xl font-bold text-slate-800 mb-1">Riwayat Transaksi</h1>
-        <p class="text-slate-500 text-sm">Lihat, ubah, atau hapus seluruh catatan amplop.</p>
+        <h1 class="font-display text-3xl font-bold text-slate-800">Riwayat Transaksi</h1>
+        <p class="text-slate-500 text-sm mt-1">Lihat, ubah, atau hapus seluruh catatan amplop.</p>
       </div>
       <div class="flex items-center gap-2">
 

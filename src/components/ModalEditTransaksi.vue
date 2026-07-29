@@ -98,7 +98,7 @@ async function handleSave() {
       tipe: formData.value.tipe,
       kontak_id: formData.value.kontak_id,
       nominal: formData.value.nominal,
-      tanggal_acara: formData.value.tanggal_acara || null,
+      tanggal_acara: formData.value.tanggal_acara || new Date().toISOString().split('T')[0],
       kategori_acara: formData.value.kategori_acara,
       jenis_acara: formData.value.jenis_acara,
       keterangan: formData.value.keterangan || null

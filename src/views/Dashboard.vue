@@ -33,8 +33,8 @@ onMounted(loadRingkasan)
   <div>
     <div class="flex justify-between items-start mb-8">
       <div>
-        <p class="text-slate-500 text-sm font-medium">Selamat datang, <span class="text-slate-700 font-bold">{{ user?.user_metadata?.nama_keluarga || 'Keluarga' }}</span></p>
-        <h1 class="font-display text-3xl font-bold text-slate-800 mt-1">Dasbor</h1>
+        <h1 class="font-display text-3xl font-bold text-slate-800">Dasbor</h1>
+        <p class="text-slate-500 text-sm font-medium mt-1">Selamat datang, <span class="text-slate-700 font-bold">{{ user?.user_metadata?.nama_keluarga || 'Keluarga' }}</span>. Berikut merupakan ringkasan catatan amplop Anda.</p>
       </div>
       <button class="btn-ghost text-sm md:hidden" @click="signOut">Keluar</button>
     </div>

@@ -129,7 +129,7 @@ async function simpanTransaksi() {
     tipe: tipe.value,
     kategori_acara: kategoriAcara.value,
     jenis_acara: jenisAcaraLabel.value,
-    tanggal_acara: tanggalAcara.value || null,
+    tanggal_acara: tanggalAcara.value || new Date().toISOString().split('T')[0],
     nominal: nominalValue.value,
     keterangan: keterangan.value || null,
   })
