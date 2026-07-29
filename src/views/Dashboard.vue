@@ -21,8 +21,25 @@ function formatRupiah(n) {
 
 async function loadRingkasan() {
   loading.value = true
-  const { data, error } = await supabase.from('v_ringkasan_keluarga').select('*')
-  if (!error) ringkasan.value = data
+  const { data, error } = await supabase
+    .from('transaksi')
+    .select('nominal, tipe, kategori_acara')
+    .eq('keluarga_id', user.value.id)
+
+  if (!error && data) {
+    const summary = {}
+    data.forEach(t => {
+      const cat = t.kategori_acara || 'suka_cita'
+      if (!summary[cat]) {
+        summary[cat] = { kategori_acara: cat, total_masuk: 0, total_keluar: 0 }
+      }
+      if (t.tipe === 'masuk') summary[cat].total_masuk += Number(t.nominal)
+      else if (t.tipe === 'keluar') summary[cat].total_keluar += Number(t.nominal)
+    })
+    ringkasan.value = Object.values(summary)
+  } else {
+    ringkasan.value = []
+  }
   loading.value = false
 }
 

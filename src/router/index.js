@@ -20,6 +20,9 @@ const routes = [
   { path: '/jejak', name: 'jejak', component: JejakSilaturahmi },
   { path: '/riwayat', name: 'riwayat', component: Riwayat },
   { path: '/profil', name: 'profil', component: Profil },
+  { path: '/admin/dasbor', name: 'admin-dasbor', component: () => import('../views/admin/AdminDashboard.vue'), meta: { adminOnly: true } },
+  { path: '/admin/masukan', name: 'admin-masukan', component: () => import('../views/admin/AdminMasukan.vue'), meta: { adminOnly: true } },
+  { path: '/admin/pengguna', name: 'admin-pengguna', component: () => import('../views/admin/AdminPengguna.vue'), meta: { adminOnly: true } },
 ]
 
 const router = createRouter({
@@ -28,13 +31,16 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  const { user, isReady, init } = useAuth()
+  const { user, userRole, isReady, init } = useAuth()
   if (!isReady.value) await init()
 
   if (!to.meta.public && !user.value) {
     return { name: 'masuk' }
   }
   if (to.meta.public && user.value) {
+    return { name: 'dashboard' }
+  }
+  if (to.meta.adminOnly && userRole.value !== 'admin') {
     return { name: 'dashboard' }
   }
   return true
