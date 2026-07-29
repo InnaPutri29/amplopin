@@ -48,24 +48,27 @@ onMounted(loadRingkasan)
 
 <template>
   <div>
-    <div class="flex justify-between items-start mb-8">
+    <div class="flex justify-between items-start gap-4 mb-8">
       <div>
         <h1 class="font-display text-3xl font-bold text-slate-800">Dasbor</h1>
         <p class="text-slate-500 text-sm font-medium mt-1">Selamat datang, <span class="text-slate-700 font-bold">{{ user?.user_metadata?.nama_keluarga || 'Keluarga' }}</span>. Berikut merupakan ringkasan catatan amplop Anda.</p>
       </div>
-      <button class="btn-ghost text-sm md:hidden" @click="signOut">Keluar</button>
+      <button class="md:hidden flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-xl transition-colors shadow-sm whitespace-nowrap" @click="signOut">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
+        Keluar
+      </button>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
       <div class="card p-5 relative overflow-hidden group">
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-serenity-100 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
         <p class="text-xs font-semibold text-slate-500 mb-2 relative z-10 uppercase tracking-wider">Total Diterima</p>
-        <p class="font-display text-2xl font-bold text-serenity-600 relative z-10">{{ formatRupiah(totalMasuk) }}</p>
+        <p class="font-display text-2xl sm:text-3xl font-bold text-serenity-600 relative z-10 truncate" :title="formatRupiah(totalMasuk)">{{ formatRupiah(totalMasuk) }}</p>
       </div>
       <div class="card p-5 relative overflow-hidden group">
         <div class="absolute -right-6 -top-6 w-24 h-24 bg-quartz-100 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
         <p class="text-xs font-semibold text-slate-500 mb-2 relative z-10 uppercase tracking-wider">Total Diberikan</p>
-        <p class="font-display text-2xl font-bold text-quartz-600 relative z-10">{{ formatRupiah(totalKeluar) }}</p>
+        <p class="font-display text-2xl sm:text-3xl font-bold text-quartz-600 relative z-10 truncate" :title="formatRupiah(totalKeluar)">{{ formatRupiah(totalKeluar) }}</p>
       </div>
     </div>
 
@@ -81,15 +84,15 @@ onMounted(loadRingkasan)
     </div>
     <div v-else class="space-y-3">
       <div v-for="r in ringkasan" :key="r.kategori_acara" class="card p-5 flex justify-between items-center group">
-        <div>
+        <div class="flex-1 pr-4">
           <p class="font-bold text-slate-700 text-lg">{{ KATEGORI_LABEL[r.kategori_acara] }}</p>
-          <div class="flex items-center gap-2 mt-1 text-xs font-medium">
-            <span class="text-serenity-600 bg-serenity-50 px-2 py-0.5 rounded-md">Masuk: {{ formatRupiah(r.total_masuk) }}</span>
-            <span class="text-slate-300">•</span>
-            <span class="text-quartz-600 bg-quartz-50 px-2 py-0.5 rounded-md">Keluar: {{ formatRupiah(r.total_keluar) }}</span>
+          <div class="flex flex-wrap items-center gap-y-2 gap-x-2 mt-2 text-[11px] font-medium">
+            <span class="text-serenity-600 bg-serenity-50 px-2 py-1 rounded-md whitespace-nowrap">Masuk: {{ formatRupiah(r.total_masuk) }}</span>
+            <span class="text-slate-300 hidden sm:inline-block">•</span>
+            <span class="text-quartz-600 bg-quartz-50 px-2 py-1 rounded-md whitespace-nowrap">Keluar: {{ formatRupiah(r.total_keluar) }}</span>
           </div>
         </div>
-        <div class="w-10 h-10 rounded-full flex items-center justify-center" :class="r.kategori_acara === 'suka_cita' ? 'bg-serenity-50 text-serenity-500' : 'bg-slate-100 text-slate-500'">
+        <div class="w-10 h-10 rounded-full flex flex-shrink-0 items-center justify-center" :class="r.kategori_acara === 'suka_cita' ? 'bg-serenity-50 text-serenity-500' : 'bg-slate-100 text-slate-500'">
            <svg v-if="r.kategori_acara === 'suka_cita'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
               <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
             </svg>

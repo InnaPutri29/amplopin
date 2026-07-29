@@ -130,7 +130,8 @@ async function handleDelete(id) {
         Belum ada catatan amplop.
       </div>
       
-      <div v-else class="overflow-x-auto">
+      <!-- Desktop Table -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider">
@@ -175,6 +176,38 @@ async function handleDelete(id) {
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="md:hidden divide-y divide-slate-100">
+        <div v-for="item in riwayat" :key="'mobile-'+item.id" class="py-4">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h3 class="font-bold text-slate-800 text-base">{{ item.kontak?.nama || 'Tanpa Kontak' }}</h3>
+              <p class="text-xs text-slate-500 mt-0.5">{{ formatDate(item.tanggal_acara) }} • {{ item.jenis_acara || item.kategori_acara.replace('_', ' ') }}</p>
+            </div>
+            <span 
+              class="inline-block px-2 py-1 rounded-lg text-[10px] font-bold tracking-wider"
+              :class="item.tipe === 'masuk' ? 'bg-serenity-100 text-serenity-700' : 'bg-quartz-100 text-quartz-700'"
+            >
+              {{ item.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
+            </span>
+          </div>
+          
+          <div class="flex items-end justify-between mt-4">
+            <p class="font-display font-bold text-lg" :class="item.tipe === 'masuk' ? 'text-serenity-600' : 'text-quartz-600'">
+              {{ formatRupiah(item.nominal) }}
+            </p>
+            <div class="flex gap-2">
+              <button @click="editTransaksi(item.id)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors">
+                Edit
+              </button>
+              <button @click="handleDelete(item.id)" class="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     

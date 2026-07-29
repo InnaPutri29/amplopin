@@ -382,7 +382,8 @@ onMounted(load)
         </div>
         Belum ada data yang sesuai.
       </div>
-      <div v-else class="overflow-x-auto">
+      <!-- Desktop Table -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider">
@@ -422,6 +423,45 @@ onMounted(load)
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="md:hidden divide-y divide-slate-100">
+        <div v-for="(row, index) in filteredData" :key="'mobile-'+row.kontak_id" class="py-4">
+          <div class="flex justify-between items-start mb-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                {{ index + 1 }}
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-800">{{ row.nama_kontak }}</h3>
+                <p class="text-xs text-slate-500">{{ row.alamat || '-' }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-4 bg-slate-50 p-3 rounded-xl border border-slate-100 mb-4 flex justify-between items-center">
+            <span class="text-xs font-semibold text-slate-500">Jumlah Uang</span>
+            <p 
+              class="font-display font-bold text-lg"
+              :class="row.saldo > 0 ? 'text-quartz-600' : row.saldo < 0 ? 'text-serenity-600' : 'text-slate-400'"
+            >
+              {{ formatRupiah(row.saldo) }}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button @click="editTransaksiJejak(row)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 py-2 rounded-lg transition-colors">
+              Edit
+            </button>
+            <button @click="hapusTransaksiJejak(row)" class="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 py-2 rounded-lg transition-colors">
+              Hapus
+            </button>
+            <button @click="viewDetail(row)" class="text-xs font-semibold text-serenity-600 bg-serenity-50 hover:bg-serenity-100 py-2 rounded-lg transition-colors">
+              Detail
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 

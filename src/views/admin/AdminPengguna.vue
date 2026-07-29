@@ -67,7 +67,8 @@ onMounted(loadUsers)
     </div>
 
     <div v-else class="card overflow-hidden">
-      <div class="overflow-x-auto">
+      <!-- Desktop Table -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500">
@@ -121,6 +122,48 @@ onMounted(loadUsers)
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="md:hidden divide-y divide-slate-100">
+        <div v-for="item in usersList" :key="'mobile-'+item.id" class="p-4 hover:bg-slate-50/50 transition-colors">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                {{ item.nama_keluarga?.charAt(0).toUpperCase() || '?' }}
+              </div>
+              <div>
+                <p class="font-semibold text-slate-800">{{ item.nama_keluarga || 'Pengguna' }}</p>
+                <p class="text-xs text-slate-500">{{ item.email || '-' }}</p>
+              </div>
+            </div>
+            <span 
+              class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+              :class="item.role === 'admin' ? 'bg-quartz-100 text-quartz-700' : 'bg-slate-100 text-slate-500'"
+            >
+              {{ item.role }}
+            </span>
+          </div>
+          
+          <div class="flex items-center justify-between mt-4">
+            <p class="text-[11px] text-slate-400">Terdaftar: {{ formatDate(item.created_at) }}</p>
+            <div>
+              <span v-if="item.id === user?.id" class="text-xs font-medium text-slate-400 italic">Anda</span>
+              <button 
+                v-else
+                @click="toggleRole(item.id, item.role)"
+                class="text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-all"
+                :class="item.role === 'admin' ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-serenity-200 text-serenity-600 hover:bg-serenity-50'"
+              >
+                {{ item.role === 'admin' ? 'Turunkan Pangkat' : 'Jadikan Admin' }}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div v-if="usersList.length === 0" class="p-8 text-center text-slate-500 text-sm">
+          Belum ada data pengguna.
+        </div>
       </div>
     </div>
   </div>
