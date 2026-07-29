@@ -469,45 +469,55 @@ onMounted(load)
     </div>
 
     <!-- Detail Modal -->
-    <div v-if="showDetailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-      <div class="bg-white rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative max-h-[90vh] flex flex-col">
-        <button @click="showDetailModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+    <div v-if="showDetailModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 md:p-6" @click.self="showDetailModal = false">
+      <div class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl relative animate-blob max-h-[85vh] flex flex-col" style="animation-duration: 0.3s; animation-name: popIn;">
         
-        <h2 class="font-display text-xl font-bold text-slate-800 mb-1">Rincian Transaksi</h2>
-        <p class="text-sm text-slate-500 mb-6">Kontak: <strong>{{ selectedKontakDetail?.nama_kontak }}</strong> ({{ filterKategori === 'suka_cita' ? 'Suka Cita' : 'Duka' }})</p>
+        <!-- Header -->
+        <div class="px-8 pt-8 pb-5 flex justify-between items-start border-b border-slate-100">
+          <div>
+            <h2 class="font-display text-xl font-bold text-slate-800 mb-1">Rincian Transaksi</h2>
+            <p class="text-sm text-slate-500">
+              Kontak: <strong class="text-slate-700">{{ selectedKontakDetail?.nama_kontak }}</strong> ({{ filterKategori === 'suka_cita' ? 'Suka Cita' : 'Duka' }})
+            </p>
+          </div>
+          <button @click="showDetailModal = false" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors flex-shrink-0 mt-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
         
-        <div v-if="loadingDetail" class="text-center text-slate-400 py-8 animate-pulse">Memuat rincian...</div>
-        <div v-else-if="detailTransaksi.length === 0" class="text-center text-slate-400 py-8">Tidak ada data.</div>
-        <div v-else class="overflow-y-auto flex-1 pr-2">
-          <div class="space-y-3">
-            <div v-for="t in detailTransaksi" :key="t.id" class="p-4 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-center">
-              <div>
-                <p class="text-xs text-slate-400 mb-1 font-medium">{{ formatDate(t.tanggal_acara) }}</p>
-                <p class="font-bold text-slate-700 text-sm mb-0.5">{{ t.jenis_acara }}</p>
-                <p v-if="t.keterangan" class="text-xs text-slate-500 italic mt-1 bg-white px-2 py-1 rounded inline-block border border-slate-100">"{{ t.keterangan }}"</p>
-              </div>
-              <div class="text-right flex flex-col items-end">
-                <div class="flex items-center gap-2 mb-1.5">
-                  <button @click="editTransaksi(t.id)" class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded transition-colors" title="Edit">
-                    Edit
-                  </button>
-                  <button @click="handleDelete(t.id)" class="text-[10px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded transition-colors" title="Hapus">
-                    Hapus
-                  </button>
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+          <div class="px-8 py-6">
+            <div v-if="loadingDetail" class="text-center text-slate-400 py-8 animate-pulse">Memuat rincian...</div>
+            <div v-else-if="detailTransaksi.length === 0" class="text-center text-slate-400 py-8">Tidak ada data.</div>
+            <div v-else class="space-y-4">
+              <div v-for="t in detailTransaksi" :key="t.id" class="p-4 rounded-2xl border border-slate-100 bg-slate-50 flex justify-between items-start">
+                <div class="flex-1 pr-4">
+                  <p class="text-[11px] text-slate-400 mb-1 font-medium">{{ formatDate(t.tanggal_acara) }}</p>
+                  <p class="font-bold text-slate-700 text-sm mb-1.5">{{ t.jenis_acara }}</p>
+                  <p v-if="t.keterangan" class="text-xs text-slate-500 italic bg-white px-2 py-1.5 rounded-lg border border-slate-100 inline-block">"{{ t.keterangan }}"</p>
                 </div>
-                <span 
-                  class="inline-block px-2 py-0.5 rounded text-[10px] font-bold mb-1"
-                  :class="t.tipe === 'masuk' ? 'bg-serenity-100 text-serenity-700' : 'bg-quartz-100 text-quartz-700'"
-                >
-                  {{ t.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
-                </span>
-                <p class="font-display font-bold text-sm" :class="t.tipe === 'masuk' ? 'text-serenity-600' : 'text-quartz-600'">
-                  {{ formatRupiah(t.nominal) }}
-                </p>
+                <div class="text-right flex flex-col items-end flex-shrink-0">
+                  <div class="flex items-center gap-1.5 mb-2">
+                    <button @click="editTransaksi(t.id)" class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-md transition-colors" title="Edit">
+                      Edit
+                    </button>
+                    <button @click="handleDelete(t.id)" class="text-[10px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md transition-colors" title="Hapus">
+                      Hapus
+                    </button>
+                  </div>
+                  <span 
+                    class="inline-block px-2 py-0.5 rounded text-[10px] font-bold mb-1.5"
+                    :class="t.tipe === 'masuk' ? 'bg-serenity-100 text-serenity-700' : 'bg-quartz-100 text-quartz-700'"
+                  >
+                    {{ t.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
+                  </span>
+                  <p class="font-display font-bold text-[15px]" :class="t.tipe === 'masuk' ? 'text-serenity-600' : 'text-quartz-600'">
+                    {{ formatRupiah(t.nominal) }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

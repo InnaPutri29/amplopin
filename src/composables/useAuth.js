@@ -33,6 +33,16 @@ async function signOut() {
   await supabase.auth.signOut()
 }
 
+async function updateProfile({ email, password, nama_keluarga }) {
+  const updates = {}
+  if (email) updates.email = email
+  if (password) updates.password = password
+  if (nama_keluarga) updates.data = { nama_keluarga }
+
+  const { data, error } = await supabase.auth.updateUser(updates)
+  return { data, error }
+}
+
 export function useAuth() {
-  return { user, isReady, init, signUp, signIn, signOut }
+  return { user, isReady, init, signUp, signIn, signOut, updateProfile }
 }

@@ -1,11 +1,16 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onErrorCaptured } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
 import { JENIS_ACARA_DEFAULT } from '../constants/jenisAcara'
 import GlassSelect from '../components/GlassSelect.vue'
 import GlassDatePicker from '../components/GlassDatePicker.vue'
+
+onErrorCaptured((err, instance, info) => {
+  console.warn('Caught error in TransaksiBaru:', err, info)
+  return false // stop propagation
+})
 
 const router = useRouter()
 const { user } = useAuth()

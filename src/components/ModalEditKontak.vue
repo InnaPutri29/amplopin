@@ -48,17 +48,20 @@ async function handleSave() {
 </script>
 
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl relative animate-blob" style="animation-duration: 0.3s; animation-name: popIn;">
-      <button @click="emit('close')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-      
-      <h2 class="font-display text-xl font-bold text-slate-800 mb-6">Edit Kontak</h2>
-      
-      <form @submit.prevent="handleSave" class="space-y-4">
+  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" @click.self="emit('close')">
+    <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl relative animate-blob flex flex-col" style="animation-duration: 0.3s; animation-name: popIn;">
+      <!-- Header -->
+      <div class="px-8 pt-6 pb-4 flex justify-between items-center border-b border-slate-100 mb-6">
+        <h2 class="font-display text-xl font-bold text-slate-800">Edit Kontak</h2>
+        <button @click="emit('close')" class="text-slate-400 hover:text-slate-700">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Form Body -->
+      <form @submit.prevent="handleSave" class="px-8 pb-8 space-y-4">
         <div>
           <label class="block text-sm font-semibold text-slate-600 mb-1.5">Nama Lengkap</label>
           <input v-model="formData.nama" type="text" required class="input-field" />
