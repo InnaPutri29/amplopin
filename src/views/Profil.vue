@@ -52,7 +52,7 @@ async function handleUpdate() {
 
 <template>
   <div class="h-full flex flex-col">
-    <div class="mb-8 flex justify-between items-start gap-4">
+    <div class="mb-2 flex justify-between items-start gap-4">
       <div>
         <h1 class="font-display text-3xl font-bold text-slate-800">Profil Saya</h1>
         <p class="text-slate-500 text-sm font-medium mt-1">Pengaturan Akun</p>

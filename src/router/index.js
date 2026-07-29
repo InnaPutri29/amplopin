@@ -11,6 +11,7 @@ import KontakDetail from '../views/KontakDetail.vue'
 import Profil from '../views/Profil.vue'
 
 const routes = [
+  { path: '/selamat-datang', name: 'welcome', component: () => import('../views/Welcome.vue'), meta: { public: true } },
   { path: '/masuk', name: 'masuk', component: () => import('../views/Login.vue'), meta: { public: true } },
   { path: '/daftar', name: 'daftar', component: () => import('../views/Signup.vue'), meta: { public: true } },
   { path: '/', name: 'dashboard', component: Dashboard },
@@ -35,7 +36,7 @@ router.beforeEach(async (to) => {
   if (!isReady.value) await init()
 
   if (!to.meta.public && !user.value) {
-    return { name: 'masuk' }
+    return { name: 'welcome' }
   }
   if (to.meta.public && user.value) {
     return { name: 'dashboard' }
