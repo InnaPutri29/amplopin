@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
+import { confirmDialog, showError, showInfo } from '../utils/swal'
 
 const { user } = useAuth()
 const keyword = ref('')
@@ -68,11 +69,12 @@ async function hapusKontak(k) {
     .limit(1)
     
   if (transaksis && transaksis.length > 0) {
-    alert('Tidak dapat menghapus kontak yang sudah memiliki riwayat transaksi. Hapus riwayat transaksinya terlebih dahulu di halaman Riwayat.')
+    showInfo('Tidak Bisa Dihapus', 'Hapus riwayat transaksinya terlebih dahulu di halaman Riwayat.')
     return
   }
 
-  if (!confirm(`Apakah Anda yakin ingin menghapus kontak "${k.nama}"?`)) return
+  const isConfirmed = await confirmDialog('Hapus Kontak', `Apakah Anda yakin ingin menghapus kontak "${k.nama}"?`)
+  if (!isConfirmed) return
 
   const { error } = await supabase
     .from('kontak')
@@ -82,7 +84,7 @@ async function hapusKontak(k) {
   if (!error) {
     loadKontak()
   } else {
-    alert('Gagal menghapus kontak: ' + error.message)
+    showError('Gagal', 'Gagal menghapus kontak: ' + error.message)
   }
 }
 

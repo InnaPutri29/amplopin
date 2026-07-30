@@ -1,9 +1,10 @@
 <script setup>
 import { ref, watch, onMounted, computed, onErrorCaptured } from 'vue'
 import { supabase } from '../lib/supabase'
-import { JENIS_ACARA_DEFAULT } from '../constants/jenisAcara'
+import { JENIS_ACARA_DEFAULT, KATEGORI_LABEL } from '../constants/jenisAcara'
 import GlassSelect from './GlassSelect.vue'
 import GlassDatePicker from './GlassDatePicker.vue'
+import { showError } from '../utils/swal'
 
 onErrorCaptured((err, instance, info) => {
   console.warn('Caught error in ModalEditTransaksi:', err, info)
@@ -110,7 +111,7 @@ async function handleSave() {
     emit('updated')
     emit('close')
   } else {
-    alert('Gagal menyimpan perubahan: ' + error.message)
+    showError('Gagal', 'Gagal menyimpan perubahan: ' + error.message)
   }
 }
 </script>

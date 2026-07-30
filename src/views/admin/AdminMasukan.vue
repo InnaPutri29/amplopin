@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { supabase } from '../../lib/supabase'
+import { confirmDialog, showError } from '../../utils/swal'
 
 const masukanList = ref([])
 const isLoading = ref(true)
@@ -44,8 +45,8 @@ async function tandaiDibaca(id) {
 }
 
 async function hapusMasukan(id) {
-  const konfirmasi = confirm('Yakin ingin menghapus masukan ini secara permanen?')
-  if (!konfirmasi) return
+  const isConfirmed = await confirmDialog('Hapus Masukan', 'Yakin ingin menghapus masukan ini secara permanen?')
+  if (!isConfirmed) return
 
   try {
     const { error } = await supabase
@@ -57,7 +58,7 @@ async function hapusMasukan(id) {
     masukanList.value = masukanList.value.filter(x => x.id !== id)
   } catch (err) {
     console.error('Gagal menghapus masukan:', err)
-    alert('Gagal menghapus masukan.')
+    showError('Gagal', 'Gagal menghapus masukan.')
   }
 }
 
@@ -73,6 +74,12 @@ onMounted(loadMasukan)
 
 <template>
   <div class="h-full flex flex-col">
+    <div class="mb-4">
+      <router-link to="/profil" class="inline-flex items-center gap-1.5 text-slate-400 hover:text-slate-700 font-semibold text-sm transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Kembali
+      </router-link>
+    </div>
     <div class="mb-8">
       <h1 class="font-display text-3xl font-bold text-slate-800">Masukan Pengguna</h1>
       <p class="text-slate-500 text-sm font-medium mt-1">Daftar saran dan kritik dari pengguna aplikasi.</p>

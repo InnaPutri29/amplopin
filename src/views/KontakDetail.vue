@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
+import { confirmDialog, showError, showInfo } from '../utils/swal'
 
 const route = useRoute()
 const router = useRouter()
@@ -59,11 +60,12 @@ async function loadData() {
 
 async function hapusKontak() {
   if (riwayat.value.length > 0) {
-    alert('Tidak dapat menghapus kontak yang sudah memiliki riwayat transaksi. Hapus riwayat transaksi dengan kontak ini terlebih dahulu di halaman Riwayat.')
+    showInfo('Tidak Bisa Dihapus', 'Hapus riwayat transaksi dengan kontak ini terlebih dahulu di halaman Riwayat.')
     return
   }
 
-  if (!confirm('Apakah Anda yakin ingin menghapus kontak ini secara permanen?')) return
+  const isConfirmed = await confirmDialog('Hapus Kontak', 'Apakah Anda yakin ingin menghapus kontak ini secara permanen?')
+  if (!isConfirmed) return
 
   const { error } = await supabase
     .from('kontak')
@@ -73,7 +75,7 @@ async function hapusKontak() {
   if (!error) {
     router.push('/kontak')
   } else {
-    alert('Gagal menghapus kontak: ' + error.message)
+    showError('Gagal', 'Gagal menghapus kontak: ' + error.message)
   }
 }
 

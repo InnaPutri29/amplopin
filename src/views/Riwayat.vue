@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
 import ModalEditTransaksi from '../components/ModalEditTransaksi.vue'
+import { confirmDialog, showError } from '../utils/swal'
 
 const { user } = useAuth()
 const riwayat = ref([])
@@ -85,7 +86,8 @@ function exportToPDF() {
 }
 
 async function handleDelete(id) {
-  if (!confirm('Apakah Anda yakin ingin menghapus catatan ini?')) return
+  const isConfirmed = await confirmDialog('Hapus Catatan', 'Apakah Anda yakin ingin menghapus catatan ini?')
+  if (!isConfirmed) return
   
   const { error } = await supabase
     .from('transaksi')
@@ -95,7 +97,7 @@ async function handleDelete(id) {
   if (!error) {
     loadRiwayat()
   } else {
-    alert('Gagal menghapus catatan.')
+    showError('Gagal', 'Gagal menghapus catatan.')
   }
 }
 </script>

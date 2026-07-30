@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../composables/useAuth'
+import { confirmDialog, showError } from '../../utils/swal'
 
 const usersList = ref([])
 const isLoading = ref(true)
@@ -22,9 +23,9 @@ async function loadUsers() {
 
 async function toggleRole(userId, currentRole) {
   const newRole = currentRole === 'admin' ? 'user' : 'admin'
-  const konfirmasi = confirm(`Yakin ingin mengubah status pengguna ini menjadi ${newRole.toUpperCase()}?`)
+  const isConfirmed = await confirmDialog('Ubah Status', `Yakin ingin mengubah status pengguna ini menjadi ${newRole.toUpperCase()}?`)
   
-  if (!konfirmasi) return
+  if (!isConfirmed) return
 
   try {
     const { error } = await supabase
@@ -41,7 +42,7 @@ async function toggleRole(userId, currentRole) {
     }
   } catch (err) {
     console.error('Gagal mengubah role pengguna:', err)
-    alert('Terjadi kesalahan saat mengubah status pengguna.')
+    showError('Gagal', 'Terjadi kesalahan saat mengubah status pengguna.')
   }
 }
 
@@ -57,6 +58,12 @@ onMounted(loadUsers)
 
 <template>
   <div class="h-full flex flex-col">
+    <div class="mb-4">
+      <router-link to="/profil" class="inline-flex items-center gap-1.5 text-slate-400 hover:text-slate-700 font-semibold text-sm transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Kembali
+      </router-link>
+    </div>
     <div class="mb-8">
       <h1 class="font-display text-3xl font-bold text-slate-800">Manajemen Pengguna</h1>
       <p class="text-slate-500 text-sm font-medium mt-1">Kelola daftar seluruh keluarga yang terdaftar dalam aplikasi.</p>

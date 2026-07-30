@@ -9,6 +9,7 @@ import GlassSelect from '../components/GlassSelect.vue'
 import GlassDatePicker from '../components/GlassDatePicker.vue'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
 import * as XLSX from 'xlsx'
+import { confirmDialog, showError, showSuccess } from '../utils/swal'
 
 const { user } = useAuth()
 const data = ref([])
@@ -49,12 +50,13 @@ async function editTransaksiJejak(row) {
     selectedTransaksiId.value = data.id
     showEditModal.value = true
   } else {
-    alert('Data transaksi tidak ditemukan.')
+    showError('Tidak Ditemukan', 'Data transaksi tidak ditemukan.')
   }
 }
 
 async function hapusTransaksiJejak(row) {
-  if (!confirm(`Hapus catatan amplop masuk untuk "${row.nama_kontak}"?`)) return
+  const isConfirmed = await confirmDialog('Hapus Catatan', `Hapus catatan amplop masuk untuk "${row.nama_kontak}"?`)
+  if (!isConfirmed) return
   
   const { error } = await supabase
     .from('transaksi')
@@ -67,7 +69,7 @@ async function hapusTransaksiJejak(row) {
   if (!error) {
     load()
   } else {
-    alert('Gagal menghapus: ' + error.message)
+    showError('Gagal', 'Gagal menghapus: ' + error.message)
   }
 }
 
@@ -77,7 +79,8 @@ function editTransaksi(id) {
 }
 
 async function handleDelete(id) {
-  if (!confirm('Apakah Anda yakin ingin menghapus catatan ini?')) return
+  const isConfirmed = await confirmDialog('Hapus Catatan', 'Apakah Anda yakin ingin menghapus catatan ini?')
+  if (!isConfirmed) return
   
   const { error } = await supabase
     .from('transaksi')
@@ -90,7 +93,7 @@ async function handleDelete(id) {
     }
     load()
   } else {
-    alert('Gagal menghapus catatan.')
+    showError('Gagal', 'Gagal menghapus catatan.')
   }
 }
 
@@ -116,7 +119,7 @@ async function viewDetail(row) {
     .order('tanggal_acara', { ascending: false })
     
   if (error) {
-    alert('Gagal memuat rincian: ' + error.message)
+    showError('Gagal', 'Gagal memuat rincian: ' + error.message)
     detailTransaksi.value = []
   } else {
     detailTransaksi.value = data || []
@@ -246,12 +249,12 @@ async function processImport() {
         importedCount++
       }
       
-      alert(`Berhasil mengimpor ${importedCount} catatan.`)
+      showSuccess('Berhasil', `Berhasil mengimpor ${importedCount} catatan.`)
       showImportModal.value = false
       importFile.value = null
       load()
     } catch (err) {
-      alert('Gagal memproses file Excel: ' + err.message)
+      showError('Gagal', 'Gagal memproses file Excel: ' + err.message)
     } finally {
       isImporting.value = false
     }
@@ -528,6 +531,9 @@ onMounted(load)
             <h2 class="font-display text-xl font-bold text-slate-800 mb-1">Rincian Transaksi</h2>
             <p class="text-sm text-slate-500">
               Kontak: <strong class="text-slate-700">{{ selectedKontakDetail?.nama_kontak }}</strong> ({{ filterKategori === 'suka_cita' ? 'Suka Cita' : 'Duka' }})
+            </p>
+            <p v-if="selectedKontakDetail?.no_hp || selectedKontakDetail?.alamat" class="text-xs text-slate-400 mt-1 font-medium">
+              {{ [selectedKontakDetail?.no_hp, selectedKontakDetail?.alamat].filter(Boolean).join(' • ') }}
             </p>
           </div>
           <button @click="showDetailModal = false" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors flex-shrink-0 mt-1">

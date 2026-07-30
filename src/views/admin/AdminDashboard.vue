@@ -57,6 +57,12 @@ onMounted(loadData)
 
 <template>
   <div class="h-full flex flex-col">
+    <div class="mb-4">
+      <router-link to="/profil" class="inline-flex items-center gap-1.5 text-slate-400 hover:text-slate-700 font-semibold text-sm transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Kembali
+      </router-link>
+    </div>
     <div class="mb-8 flex justify-between items-start">
       <div>
         <h1 class="font-display text-3xl font-bold text-slate-800">Dasbor Admin</h1>
