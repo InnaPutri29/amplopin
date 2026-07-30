@@ -136,7 +136,12 @@ function formatDate(dateStr) {
 const filteredData = computed(() => {
   if (!searchQuery.value.trim()) return data.value
   const q = searchQuery.value.toLowerCase()
-  return data.value.filter(row => row.nama_kontak.toLowerCase().includes(q))
+  return data.value.filter(row => {
+    const nama = (row.nama_kontak || '').toLowerCase()
+    const alamat = (row.alamat || '').toLowerCase()
+    const hp = (row.no_hp || '').toLowerCase()
+    return nama.includes(q) || alamat.includes(q) || hp.includes(q)
+  })
 })
 
 const fileInput = ref(null)
@@ -289,7 +294,7 @@ async function load() {
 
   const { data: kontakData } = await supabase
     .from('kontak')
-    .select('id, nama, alamat_lengkap')
+    .select('id, nama, alamat_lengkap, no_hp')
     .eq('keluarga_id', user.value.id)
 
   if (!error && transaksis && kontakData) {
@@ -305,6 +310,7 @@ async function load() {
         kontak_id: kId,
         nama_kontak: k ? k.nama : 'Unknown',
         alamat: k ? (k.alamat_lengkap || '') : '',
+        no_hp: k ? (k.no_hp || '') : '',
         saldo: grouped[kId]
       }
     }).sort((a, b) => b.saldo - a.saldo)
@@ -365,11 +371,11 @@ onMounted(load)
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
         </div>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Cari nama kontak..."
-          class="input-field pl-11"
+        <input 
+          v-model="searchQuery" 
+          type="text" 
+          placeholder="Cari nama, alamat, atau no HP..." 
+          class="input-field pl-11 shadow-sm border-slate-200 focus:border-serenity-300 focus:ring focus:ring-serenity-200/50"
         />
       </div>
 
@@ -409,14 +415,17 @@ onMounted(load)
               </td>
               <td class="py-4 px-4">
                 <div class="flex items-center justify-center gap-2">
-                  <button @click="editTransaksiJejak(row)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors" title="Edit Transaksi Terakhir">
-                    Edit
+                  <button @click="editTransaksiJejak(row)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 p-2 md:px-3 md:py-1.5 rounded-lg transition-colors flex items-center gap-1.5" title="Edit">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+                    <span class="hidden md:inline">Edit</span>
                   </button>
-                  <button @click="hapusTransaksiJejak(row)" class="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors" title="Hapus Semua Transaksi Ini">
-                    Hapus
+                  <button @click="hapusTransaksiJejak(row)" class="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 p-2 md:px-3 md:py-1.5 rounded-lg transition-colors flex items-center gap-1.5" title="Hapus">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                    <span class="hidden md:inline">Hapus</span>
                   </button>
-                  <button @click="viewDetail(row)" class="text-xs font-semibold text-serenity-600 bg-serenity-50 hover:bg-serenity-100 px-3 py-1.5 rounded-lg transition-colors">
-                    Detail
+                  <button @click="viewDetail(row)" class="text-xs font-semibold text-serenity-600 bg-serenity-50 hover:bg-serenity-100 p-2 md:px-3 md:py-1.5 rounded-lg transition-colors flex items-center gap-1.5" title="Detail">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span class="hidden md:inline">Detail</span>
                   </button>
                 </div>
               </td>
@@ -438,6 +447,17 @@ onMounted(load)
                 <p class="text-xs text-slate-500">{{ row.alamat || '-' }}</p>
               </div>
             </div>
+            <div class="flex gap-1 flex-shrink-0">
+              <button @click="editTransaksiJejak(row)" class="text-emerald-600 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg transition-colors" title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+              </button>
+              <button @click="hapusTransaksiJejak(row)" class="text-red-600 bg-red-50 hover:bg-red-100 p-1.5 rounded-lg transition-colors" title="Hapus">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+              </button>
+              <button @click="viewDetail(row)" class="text-serenity-600 bg-serenity-50 hover:bg-serenity-100 p-1.5 rounded-lg transition-colors" title="Detail">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              </button>
+            </div>
           </div>
           
           <div class="mt-4 bg-slate-50 p-3 rounded-xl border border-slate-100 mb-4 flex justify-between items-center">
@@ -450,17 +470,7 @@ onMounted(load)
             </p>
           </div>
 
-          <div class="grid grid-cols-3 gap-2">
-            <button @click="editTransaksiJejak(row)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 py-2 rounded-lg transition-colors">
-              Edit
-            </button>
-            <button @click="hapusTransaksiJejak(row)" class="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 py-2 rounded-lg transition-colors">
-              Hapus
-            </button>
-            <button @click="viewDetail(row)" class="text-xs font-semibold text-serenity-600 bg-serenity-50 hover:bg-serenity-100 py-2 rounded-lg transition-colors">
-              Detail
-            </button>
-          </div>
+
         </div>
       </div>
     </div>
@@ -541,11 +551,11 @@ onMounted(load)
                 </div>
                 <div class="text-right flex flex-col items-end flex-shrink-0">
                   <div class="flex items-center gap-1.5 mb-2">
-                    <button @click="editTransaksi(t.id)" class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-md transition-colors" title="Edit">
-                      Edit
+                    <button @click="editTransaksi(t.id)" class="text-emerald-600 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-md transition-colors" title="Edit">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
                     </button>
-                    <button @click="handleDelete(t.id)" class="text-[10px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md transition-colors" title="Hapus">
-                      Hapus
+                    <button @click="handleDelete(t.id)" class="text-red-600 bg-red-50 hover:bg-red-100 p-1.5 rounded-md transition-colors" title="Hapus">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                     </button>
                   </div>
                   <span 
