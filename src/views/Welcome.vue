@@ -79,10 +79,10 @@ const router = useRouter()
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   position: relative;
   overflow: hidden;
-  padding: 36px 28px 32px;
+  padding: 32px 28px;
   /* Amplopin theme gradient: Serenity → Quartz */
   background: linear-gradient(155deg,
     #bac8ed 0%,       /* serenity-300 */
@@ -146,9 +146,9 @@ const router = useRouter()
   text-align: center;
   position: relative;
   z-index: 1;
-  flex: 1;
   justify-content: center;
   gap: 6px;
+  margin-bottom: 32px;
 }
 
 .welcome-logo {
@@ -170,7 +170,7 @@ const router = useRouter()
 
 .welcome-title {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 800;
   color: white;
   margin: 0;
@@ -178,12 +178,25 @@ const router = useRouter()
   text-shadow: 0 2px 16px rgba(70, 91, 130, 0.3);
 }
 
+@media (min-width: 768px) {
+  .welcome-title {
+    font-size: 36px;
+  }
+}
+
 .welcome-desc {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.65;
-  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  margin-top: 6px;
+  font-weight: 500;
   max-width: 260px;
+}
+
+@media (min-width: 768px) {
+  .welcome-desc {
+    font-size: 15px;
+  }
 }
 
 .welcome-illustration {
@@ -199,7 +212,6 @@ const router = useRouter()
   50% { transform: translateY(-10px); }
 }
 
-/* ─── Action Buttons ─── */
 .welcome-actions {
   display: flex;
   flex-direction: column;
@@ -211,18 +223,17 @@ const router = useRouter()
 }
 
 .btn-register {
-  width: 100%;
-  padding: 16px;
-  border: none;
-  border-radius: 50px;
   background: white;
-  color: #6981ad; /* serenity-700 */
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #465b82;
+  border: none;
+  border-radius: 100px;
+  padding: 14px 24px;
   font-size: 15px;
   font-weight: 700;
+  width: 100%;
   cursor: pointer;
-  transition: all 0.25s;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(70, 91, 130, 0.1);
 }
 .btn-register:hover {
   transform: translateY(-2px);
@@ -230,21 +241,54 @@ const router = useRouter()
 }
 
 .btn-login {
-  width: 100%;
-  padding: 16px;
-  border: 2px solid rgba(255,255,255,0.6);
-  border-radius: 50px;
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
   color: white;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 100px;
+  padding: 14px 24px;
   font-size: 15px;
   font-weight: 700;
+  width: 100%;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.2s ease;
 }
 .btn-login:hover {
   background: rgba(255,255,255,0.3);
   transform: translateY(-2px);
+}
+
+/* Adjust sizes for very small height screens */
+@media (max-height: 650px) {
+  .welcome-page {
+    padding: 20px 20px;
+  }
+  .welcome-logo {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 4px;
+  }
+  .welcome-logo img {
+    width: 44px;
+    height: 44px;
+  }
+  .welcome-title {
+    font-size: 28px;
+  }
+  .welcome-desc {
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .welcome-illustration {
+    width: 120px;
+    height: 100px;
+    margin-top: 4px;
+  }
+  .btn-register, .btn-login {
+    padding: 12px 20px;
+  }
+  .welcome-actions {
+    gap: 8px;
+  }
 }
 </style>
