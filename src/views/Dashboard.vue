@@ -2,9 +2,16 @@
 import { ref, onMounted, computed } from 'vue'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
+import { useRouter } from 'vue-router'
 import { KATEGORI_LABEL } from '../constants/jenisAcara'
 
+const router = useRouter()
 const { user, signOut } = useAuth()
+
+const handleSignOut = async () => {
+  await signOut()
+  router.push('/selamat-datang')
+}
 const ringkasan = ref([])
 const loading = ref(true)
 
@@ -53,7 +60,7 @@ onMounted(loadRingkasan)
         <h1 class="font-display text-3xl font-bold text-slate-800">Dasbor</h1>
         <p class="text-slate-500 text-sm font-medium mt-1">Selamat datang, <span class="text-slate-700 font-bold">{{ user?.user_metadata?.nama_keluarga || 'Keluarga' }}</span>. Berikut merupakan ringkasan catatan amplop Anda.</p>
       </div>
-      <button class="md:hidden flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-xl transition-colors shadow-sm whitespace-nowrap" @click="signOut">
+      <button class="md:hidden flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-xl transition-colors shadow-sm whitespace-nowrap" @click="handleSignOut">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
         Keluar
       </button>

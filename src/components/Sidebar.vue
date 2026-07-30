@@ -31,7 +31,7 @@ const isActive = (path) => route.path === path
 
 const handleSignOut = async () => {
   await signOut()
-  router.push('/masuk')
+  router.push('/selamat-datang')
 }
 </script>
 
