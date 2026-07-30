@@ -214,7 +214,7 @@ async function handleSubmit() {
   font-size: 22px;
   font-weight: 800;
   color: #1e293b;
-  margin: 0 0 4px;
+  margin: 24px 0 4px;
 }
 
 .auth-form-subtitle {
@@ -378,8 +378,7 @@ async function handleSubmit() {
   text-align: center;
   font-size: 13px;
   color: #94a3b8;
-  margin-top: auto;
-  padding-top: 8px;
+  margin-top: 8px;
 }
 
 .auth-switch-link {
