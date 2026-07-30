@@ -10,7 +10,7 @@ const { user, signOut } = useAuth()
 
 const handleSignOut = async () => {
   await signOut()
-  router.push('/selamat-datang')
+  router.push('/')
 }
 const ringkasan = ref([])
 const loading = ref(true)

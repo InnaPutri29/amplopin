@@ -31,16 +31,16 @@ const isActive = (path) => route.path === path
 
 const handleSignOut = async () => {
   await signOut()
-  router.push('/selamat-datang')
+  router.push('/')
 }
 </script>
 
 <template>
-  <aside class="w-64 bg-white/30 backdrop-blur-md flex flex-col py-8 px-6 hidden md:flex sticky top-0 h-full md:rounded-l-[2.5rem] border-r border-white/50 shadow-[4px_0_24px_-4px_rgba(255,255,255,0.5)]">
+  <aside class="w-64 bg-white/30 backdrop-blur-md flex flex-col py-8 px-6 hidden md:flex sticky top-0 h-full md:rounded-l-[2.5rem] border-r border-slate-200 shadow-[4px_0_24px_-4px_rgba(255,255,255,0.5)]">
     
     <!-- Logo (Fixed) -->
     <div class="flex items-center gap-3 mb-8 pl-2 flex-shrink-0">
-      <div class="w-10 h-10 rounded-full shadow-sm flex items-center justify-center bg-white p-1">
+      <div class="w-10 h-10 rounded-full shadow-sm border border-slate-200 flex items-center justify-center bg-white p-1">
         <img src="/logo.png" alt="Logo" class="w-full h-full object-contain" />
       </div>
       <span class="font-display font-bold text-2xl text-slate-900 tracking-tight">Amplopin</span>
@@ -49,11 +49,11 @@ const handleSignOut = async () => {
     <!-- Navigation (Scrollable) -->
     <nav class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
         <RouterLink 
-          to="/" 
+          to="/dasbor" 
           class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300"
-          :class="isActive('/') ? 'bg-slate-900 text-white shadow-md font-bold' : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-900 font-medium'"
+          :class="isActive('/dasbor') ? 'bg-slate-900 text-white shadow-md font-bold' : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-900 font-medium'"
         >
-          <component :is="isActive('/') ? HomeIconSolid : HomeIcon" class="w-6 h-6" />
+          <component :is="isActive('/dasbor') ? HomeIconSolid : HomeIcon" class="w-6 h-6" />
           <span>Dasbor</span>
         </RouterLink>
 
@@ -76,11 +76,11 @@ const handleSignOut = async () => {
         </RouterLink>
 
         <RouterLink 
-          to="/jejak" 
+          to="/laporan-masuk" 
           class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300"
-          :class="isActive('/jejak') ? 'bg-slate-900 text-white shadow-md font-bold' : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-900 font-medium'"
+          :class="isActive('/laporan-masuk') ? 'bg-slate-900 text-white shadow-md font-bold' : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-900 font-medium'"
         >
-          <component :is="isActive('/jejak') ? ChartBarIconSolid : ChartBarIcon" class="w-6 h-6" />
+          <component :is="isActive('/laporan-masuk') ? ChartBarIconSolid : ChartBarIcon" class="w-6 h-6" />
           <span>Laporan</span>
         </RouterLink>
 

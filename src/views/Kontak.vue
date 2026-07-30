@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
-import { confirmDialog, showError, showInfo } from '../utils/swal'
+import { confirmDialog, showError, showInfo, showToast } from '../utils/swal'
 
 const { user } = useAuth()
 const keyword = ref('')
@@ -80,8 +80,8 @@ async function hapusKontak(k) {
     .from('kontak')
     .delete()
     .eq('id', k.id)
-
   if (!error) {
+    showToast('Kontak berhasil dihapus')
     loadKontak()
   } else {
     showError('Gagal', 'Gagal menghapus kontak: ' + error.message)

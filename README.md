@@ -1,66 +1,93 @@
-# Amplopin — Vue 3 + Supabase
+<div align="center">
+  <img src="https://amplopin.web.id/logo.png" alt="Amplopin Logo" width="80" height="80">
+  <h1 align="center">Amplopin</h1>
+  <p align="center">
+    <strong>Aplikasi Pencatatan Amplop Keluarga Modern & Elegan</strong>
+    <br/>
+    <a href="https://amplopin.web.id">https://amplopin.web.id</a>
+  </p>
+</div>
 
-Aplikasi pencatatan amplop keluarga. Dibangun dengan Vue 3 (Composition API), Vue Router, Tailwind CSS, dan Supabase.
+---
 
-## Menjalankan di lokal
+**Amplopin** adalah aplikasi manajemen pencatatan amplop kekinian untuk acara keluarga, pernikahan, khitanan, hingga duka cita. Dengan Amplopin, kamu bisa melacak siapa saja yang sudah memberikan amplop (suka cita/duka) dan berapa yang harus dikembalikan (amplop keluar) untuk menjaga tali silaturahmi dengan baik. 
 
+Dibangun dengan antarmuka yang cantik, responsif, dan performa tinggi berkat ekosistem modern **Vue 3** dan **Supabase**.
+
+## 🚀 Fitur Utama
+
+- 📊 **Dasbor Cerdas:** Ringkasan total amplop masuk dan keluar, dikategorikan antara Suka Cita dan Duka.
+- 👥 **Buku Kontak Terintegrasi:** Simpan semua tamu undangan dan kontak secara terpusat dengan fitur pencarian cepat.
+- 💵 **Riwayat Transaksi:** Lacak detail setiap transaksi yang masuk/keluar. Termasuk fitur filter dan **Unduh Laporan ke PDF**.
+- 🤝 **Laporan Amplop Masuk (Jejak Silaturahmi):** Pantau saldo timbal-balik per orang. Ketahui dengan pasti siapa yang sudah kamu "balas" undangannya.
+- 📱 **Desain Mobile First & Glassmorphism:** UI/UX super mulus bak aplikasi _native_ di perangkat Android/iOS-mu.
+
+## 🛠️ Teknologi yang Digunakan
+
+- **Frontend:** [Vue 3](https://vuejs.org/) (Composition API) + [Vite](https://vitejs.dev/)
+- **Routing & State:** Vue Router
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/) dengan sentuhan Glassmorphism & Micro-animations
+- **Backend & Database:** [Supabase](https://supabase.com/) (PostgreSQL & Row Level Security)
+- **Deployment:** Vercel
+
+---
+
+## 💻 Cara Menjalankan di Lokal
+
+### 1. Kloning dan Install Dependensi
 ```bash
+git clone https://github.com/your-username/amplopin.git
+cd amplopin
 npm install
+```
+
+### 2. Konfigurasi Environment
+Salin file environment dan masukkan kredensial Supabase milikmu:
+```bash
 cp .env.example .env.local
 ```
-
-Isi `.env.local` dengan kredensial project Supabase kamu (Settings -> API di dashboard Supabase):
-
-```
+Buka `.env.local` dan isi dengan data dari **Settings -> API** di dashboard Supabase kamu:
+```env
 VITE_SUPABASE_URL=https://xxxxx.supabase.co
 VITE_SUPABASE_ANON_KEY=xxxxxxxxxxxxxxxx
 ```
 
-Lalu jalankan:
+### 3. Persiapan Database (Supabase)
+Pastikan kamu telah menjalankan skema database (tabel `kontak`, `transaksi`, beserta view dan _policies_ RLS) melalui SQL Editor di Supabase.
 
+### 4. Jalankan Development Server
 ```bash
 npm run dev
 ```
+Buka `http://localhost:5173` di browsermu dan rasakan kemulusannya! ✨
 
-Buka `http://localhost:5173`.
+---
 
-## Struktur folder
+## 📂 Struktur Direktori
 
-```
+```text
 src/
-  lib/supabase.js         -> inisialisasi Supabase client
-  composables/useAuth.js  -> state login global (signUp, signIn, signOut)
-  router/index.js         -> routing + guard (halaman privat butuh login)
-  constants/jenisAcara.js -> daftar default jenis acara & kategori
-  views/
-    Login.vue
-    Signup.vue
-    Dashboard.vue           -> ringkasan total masuk/keluar per kategori
-    Kontak.vue              -> buku kontak + live search + tambah kontak
-    TransaksiBaru.vue       -> catat amplop masuk/keluar (search & select kontak)
-    JejakSilaturahmi.vue    -> saldo timbal-balik per kontak
-  components/BottomNav.vue  -> navigasi bawah ala aplikasi mobile
+├── assets/          # Gambar, font, dan aset statis lainnya
+├── components/      # Komponen UI Reusable (Modal, GlassSelect, Sidebar, BottomNav)
+├── composables/     # Logic reaktif global (useAuth)
+├── constants/       # Data statis seperti jenisAcara.js
+├── router/          # Konfigurasi Vue Router & penjaga hak akses (Auth Guard)
+├── views/           # Halaman utama aplikasi (Dashboard, Kontak, Riwayat, JejakSilaturahmi)
+├── App.vue          # Root component
+└── main.js          # Entry point aplikasi
 ```
 
-## Prasyarat database
+## 🌍 Deployment
 
-Project ini mengasumsikan skema database Supabase sudah dijalankan
-(`001_schema.sql`, `002_rls_policies.sql`, `003_functions_and_views.sql`)
-dari paket migrasi Amplopin sebelumnya. Tanpa itu, query ke tabel
-`kontak`, `transaksi`, dan view `v_ringkasan_keluarga` /
-`v_jejak_silaturahmi` akan gagal.
+Aplikasi ini sudah dioptimasi untuk berjalan di Vercel:
+1. Push repository ke GitHub.
+2. Buat proyek baru di **Vercel** dan impor repositori.
+3. Tambahkan Environment Variables (`VITE_SUPABASE_URL` dan `VITE_SUPABASE_ANON_KEY`).
+4. Klik **Deploy** dan Vercel akan otomatis mengenali Vite.
 
-## Deploy ke Vercel
+> Kunjungi aplikasi versi live di: **[amplopin.web.id](https://amplopin.web.id)**
 
-1. Push project ini ke GitHub.
-2. Import repo di vercel.com -> New Project.
-3. Tambahkan Environment Variables yang sama seperti `.env.local`
-   (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) di Project Settings.
-4. Deploy -- Vercel otomatis mendeteksi Vite dan build dengan `npm run build`.
-
-## Lanjut development di Antigravity / VS Code / IDE lain
-
-Folder ini adalah project Vite standar -- cukup buka foldernya di IDE
-pilihanmu, jalankan `npm install`, dan lanjutkan menambah fitur (misal
-edit/hapus transaksi, export Excel/CSV, halaman detail riwayat per
-kontak) sesuai roadmap di PRD.
+---
+<div align="center">
+  Dibuat dengan ❤️ untuk mencatat silaturahmi yang lebih baik.
+</div>

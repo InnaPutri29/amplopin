@@ -11,14 +11,14 @@ import KontakDetail from '../views/KontakDetail.vue'
 import Profil from '../views/Profil.vue'
 
 const routes = [
-  { path: '/selamat-datang', name: 'welcome', component: () => import('../views/Welcome.vue'), meta: { public: true } },
+  { path: '/', name: 'welcome', component: () => import('../views/Welcome.vue'), meta: { public: true } },
   { path: '/masuk', name: 'masuk', component: () => import('../views/Login.vue'), meta: { public: true } },
   { path: '/daftar', name: 'daftar', component: () => import('../views/Signup.vue'), meta: { public: true } },
-  { path: '/', name: 'dashboard', component: Dashboard },
+  { path: '/dasbor', name: 'dashboard', component: Dashboard },
   { path: '/kontak', name: 'kontak', component: Kontak },
   { path: '/kontak/:id', name: 'kontak-detail', component: KontakDetail },
   { path: '/catat', name: 'catat', component: TransaksiBaru },
-  { path: '/jejak', name: 'jejak', component: JejakSilaturahmi },
+  { path: '/laporan-masuk', name: 'jejak', component: JejakSilaturahmi },
   { path: '/riwayat', name: 'riwayat', component: Riwayat },
   { path: '/profil', name: 'profil', component: Profil },
   { path: '/admin/dasbor', name: 'admin-dasbor', component: () => import('../views/admin/AdminDashboard.vue'), meta: { adminOnly: true } },

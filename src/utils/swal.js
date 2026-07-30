@@ -51,4 +51,9 @@ export const showInfo = (title, text = '') => {
   })
 }
 
+import { addToast } from '../composables/useToast'
+export const showToast = (title, icon = 'success') => {
+  addToast(title, icon)
+}
+
 export default customSwal

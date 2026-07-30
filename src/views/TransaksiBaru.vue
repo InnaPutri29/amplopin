@@ -6,6 +6,7 @@ import { useAuth } from '../composables/useAuth'
 import { JENIS_ACARA_DEFAULT } from '../constants/jenisAcara'
 import GlassSelect from '../components/GlassSelect.vue'
 import GlassDatePicker from '../components/GlassDatePicker.vue'
+import { showToast } from '../utils/swal'
 
 onErrorCaptured((err, instance, info) => {
   console.warn('Caught error in TransaksiBaru:', err, info)
@@ -139,8 +140,8 @@ async function simpanTransaksi() {
     errorMsg.value = 'Gagal menyimpan: ' + error.message
     return
   }
-  successMsg.value = 'Transaksi berhasil dicatat.'
-  setTimeout(() => router.push({ name: 'dashboard' }), 900)
+  showToast('Transaksi berhasil dicatat.')
+  router.push({ name: 'dashboard' })
 }
 </script>
 

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { supabase } from '../lib/supabase'
-import { showError } from '../utils/swal'
+import { showError, showToast } from '../utils/swal'
 
 const props = defineProps({
   show: Boolean,
@@ -40,6 +40,7 @@ async function handleSave() {
     
   saving.value = false
   if (!error) {
+    showToast('Kontak berhasil diperbarui')
     emit('updated')
     emit('close')
   } else {
