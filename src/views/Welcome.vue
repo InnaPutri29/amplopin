@@ -26,7 +26,7 @@ const router = useRouter()
     <div class="welcome-content">
       <!-- Logo -->
       <div class="welcome-logo">
-        <span>A</span>
+        <img src="/logo.png" alt="Logo Amplopin" class="w-14 h-14 object-contain bg-white rounded-full p-1.5 shadow-sm" />
       </div>
 
       <!-- Title -->

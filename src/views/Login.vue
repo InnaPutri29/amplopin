@@ -43,7 +43,7 @@ async function handleSubmit() {
       <!-- Logo & Welcome -->
       <div class="auth-hero">
         <div class="auth-logo">
-          <span>A</span>
+          <img src="/logo.png" alt="Logo Amplopin" class="w-12 h-12 object-contain bg-white rounded-full p-1.5 shadow-sm" />
         </div>
         <h1 class="auth-title">Selamat Datang!</h1>
         <p class="auth-subtitle">Masuk dan kelola catatan<br/>amplop keluargamu.</p>

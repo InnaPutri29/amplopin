@@ -46,7 +46,7 @@ async function handleSubmit() {
 
       <div class="auth-hero">
         <div class="auth-logo">
-          <span>A</span>
+          <img src="/logo.png" alt="Logo Amplopin" class="w-12 h-12 object-contain bg-white rounded-full p-1.5 shadow-sm" />
         </div>
         <h1 class="auth-title">Buat Akun</h1>
         <p class="auth-subtitle">Satu akun untuk satu keluarga.<br/>Privat dan terpisah.</p>

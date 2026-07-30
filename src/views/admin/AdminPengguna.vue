@@ -59,8 +59,8 @@ onMounted(loadUsers)
 <template>
   <div class="h-full flex flex-col">
     <div class="mb-4">
-      <router-link to="/profil" class="inline-flex items-center gap-1.5 text-slate-400 hover:text-slate-700 font-semibold text-sm transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      <router-link to="/profil" class="inline-flex items-center gap-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-semibold text-[13px] py-1.5 pr-3.5 pl-2.5 rounded-full shadow-sm transition-all hover:-translate-x-0.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
         Kembali
       </router-link>
     </div>
