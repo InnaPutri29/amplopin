@@ -132,6 +132,15 @@ async function handleDelete(id) {
     <div class="card p-6 md:p-8">
       <div v-if="loading" class="text-slate-400 text-sm animate-pulse flex justify-center py-8">Memuat riwayat...</div>
       
+      <div v-else-if="riwayat.length === 0" class="text-center text-slate-500 text-sm py-12 flex flex-col items-center">
+        <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-slate-300">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+        </div>
+        Belum ada catatan amplop.
+      </div>
+      
       <!-- Desktop Table -->
       <div v-else class="hidden md:block overflow-x-auto">
         <table class="w-full text-left border-collapse">
@@ -146,19 +155,7 @@ async function handleDelete(id) {
             </tr>
           </thead>
           <tbody>
-            <tr v-if="riwayat.length === 0">
-              <td colspan="6" class="py-12">
-                <div class="flex flex-col items-center justify-center text-slate-500 text-sm">
-                  <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-slate-300">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                    </svg>
-                  </div>
-                  Belum ada catatan amplop.
-                </div>
-              </td>
-            </tr>
-            <tr v-else v-for="item in riwayat" :key="item.id" class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+            <tr v-for="item in riwayat" :key="item.id" class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
               <td class="py-4 px-4 text-sm text-slate-700">{{ formatDate(item.tanggal_acara) }}</td>
               <td class="py-4 px-4 text-sm font-medium text-slate-800">
                 {{ item.kontak?.nama || 'Tanpa Kontak' }}
@@ -196,16 +193,8 @@ async function handleDelete(id) {
       </div>
 
       <!-- Mobile Cards -->
-      <div v-if="!loading" class="md:hidden divide-y divide-slate-100">
-        <div v-if="riwayat.length === 0" class="py-12 flex flex-col items-center justify-center text-slate-500 text-sm">
-          <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-slate-300">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
-          </div>
-          Belum ada catatan amplop.
-        </div>
-        <div v-else v-for="item in riwayat" :key="'mobile-'+item.id" class="py-4">
+      <div v-if="!loading && riwayat.length > 0" class="md:hidden divide-y divide-slate-100">
+        <div v-for="item in riwayat" :key="'mobile-'+item.id" class="py-4">
           <div class="flex justify-between items-start mb-2">
             <div class="pr-2">
               <h3 class="font-bold text-slate-800 text-base">{{ item.kontak?.nama || 'Tanpa Kontak' }}</h3>

@@ -48,7 +48,7 @@ const formatKategori = (kat) => {
         leave-from-class="opacity-100 translate-y-0 scale-100"
         leave-to-class="opacity-0 translate-y-4 scale-95"
       >
-        <div v-if="show" class="bg-white/95 backdrop-blur-xl w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden relative z-10 border border-white/50 flex flex-col max-h-[90vh]">
+        <div v-if="show" class="bg-white/95 backdrop-blur-xl w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden relative z-10 border border-white/50 flex flex-col max-h-[85vh]">
           
           <!-- Header -->
           <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -140,15 +140,14 @@ const formatKategori = (kat) => {
               </div>
 
             </div>
+
+            <div class="pt-6">
+              <button @click="emit('close')" class="btn-primary w-full py-3 text-base shadow-lg shadow-serenity-500/30">
+                Tutup Detail
+              </button>
+            </div>
           </div>
           
-          <!-- Footer -->
-          <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
-            <button @click="emit('close')" class="btn-primary w-full md:w-auto bg-slate-800 hover:bg-slate-900 text-white shadow-slate-800/30">
-              Tutup Detail
-            </button>
-          </div>
-
         </div>
       </transition>
     </div>
