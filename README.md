@@ -2,7 +2,7 @@
   <img src="https://amplopin.web.id/logo.png" alt="Amplopin Logo" width="80" height="80">
   <h1 align="center">Amplopin</h1>
   <p align="center">
-    <strong>Aplikasi Pencatatan Amplop Keluarga Modern & Elegan</strong>
+    <strong>Aplikasi Pencatatan Amplop Keluarga</strong>
     <br/>
     <a href="https://amplopin.web.id">https://amplopin.web.id</a>
   </p>
