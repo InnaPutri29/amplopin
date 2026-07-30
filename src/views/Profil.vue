@@ -3,13 +3,14 @@ import { ref, onMounted } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { useRouter } from 'vue-router'
 import ModalMasukan from '../components/ModalMasukan.vue'
+import { showToast } from '../utils/swal'
 
 const router = useRouter()
 const { user, userRole, updateProfile, signOut } = useAuth()
 
 const handleSignOut = async () => {
   await signOut()
-  router.push('/selamat-datang')
+  router.push('/')
 }
 const showModalMasukan = ref(false)
 
@@ -47,10 +48,10 @@ async function handleUpdate() {
   if (error) {
     errorMsg.value = error.message
   } else {
-    successMsg.value = 'Profil berhasil diperbarui!'
+    showToast('Profil berhasil diperbarui!')
     password.value = '' // clear password field after update
     if (updates.email) {
-      successMsg.value += ' Silakan cek email baru Anda untuk konfirmasi (jika fitur aktif).'
+      successMsg.value = 'Silakan cek email baru Anda untuk konfirmasi (jika fitur aktif).'
     }
   }
   loading.value = false

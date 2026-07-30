@@ -3,6 +3,7 @@ import { RouterView, useRoute } from 'vue-router'
 import { useAuth } from './composables/useAuth'
 import BottomNav from './components/BottomNav.vue'
 import Sidebar from './components/Sidebar.vue'
+import Toast from './components/Toast.vue'
 
 const route = useRoute()
 const { user } = useAuth()
@@ -10,6 +11,7 @@ const { user } = useAuth()
 
 <template>
   <div :class="['min-h-screen relative overflow-hidden flex items-center justify-center p-0 z-0', route.meta.public ? 'bg-white md:p-6' : 'bg-[#f3f4fa] md:p-6']">
+    <Toast />
     <!-- Liquid Background Blobs (hidden on auth pages) -->
     <template v-if="!route.meta.public">
       <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#e0c3fc] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>

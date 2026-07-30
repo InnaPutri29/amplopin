@@ -3,7 +3,8 @@ import { ref, onMounted, computed } from 'vue'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
 import ModalEditTransaksi from '../components/ModalEditTransaksi.vue'
-import { confirmDialog, showError } from '../utils/swal'
+import ModalDetailTransaksi from '../components/ModalDetailTransaksi.vue'
+import { confirmDialog, showError, showToast } from '../utils/swal'
 
 const { user } = useAuth()
 const riwayat = ref([])
@@ -11,6 +12,14 @@ const loading = ref(true)
 
 const showEditModal = ref(false)
 const selectedTransaksiId = ref(null)
+
+const showDetailModal = ref(false)
+const selectedDetailTransaksi = ref(null)
+
+function viewDetail(item) {
+  selectedDetailTransaksi.value = item
+  showDetailModal.value = true
+}
 
 function editTransaksi(id) {
   selectedTransaksiId.value = id
@@ -93,8 +102,8 @@ async function handleDelete(id) {
     .from('transaksi')
     .delete()
     .eq('id', id)
-    
   if (!error) {
+    showToast('Catatan berhasil dihapus')
     loadRiwayat()
   } else {
     showError('Gagal', 'Gagal menghapus catatan.')
@@ -123,17 +132,8 @@ async function handleDelete(id) {
     <div class="card p-6 md:p-8">
       <div v-if="loading" class="text-slate-400 text-sm animate-pulse flex justify-center py-8">Memuat riwayat...</div>
       
-      <div v-else-if="riwayat.length === 0" class="text-center text-slate-500 text-sm py-12 flex flex-col items-center">
-        <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-slate-300">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-          </svg>
-        </div>
-        Belum ada catatan amplop.
-      </div>
-      
       <!-- Desktop Table -->
-      <div class="hidden md:block overflow-x-auto">
+      <div v-else class="hidden md:block overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider">
@@ -146,7 +146,19 @@ async function handleDelete(id) {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in riwayat" :key="item.id" class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+            <tr v-if="riwayat.length === 0">
+              <td colspan="6" class="py-12">
+                <div class="flex flex-col items-center justify-center text-slate-500 text-sm">
+                  <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-slate-300">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    </svg>
+                  </div>
+                  Belum ada catatan amplop.
+                </div>
+              </td>
+            </tr>
+            <tr v-else v-for="item in riwayat" :key="item.id" class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
               <td class="py-4 px-4 text-sm text-slate-700">{{ formatDate(item.tanggal_acara) }}</td>
               <td class="py-4 px-4 text-sm font-medium text-slate-800">
                 {{ item.kontak?.nama || 'Tanpa Kontak' }}
@@ -167,6 +179,9 @@ async function handleDelete(id) {
               </td>
               <td class="py-4 px-4">
                 <div class="flex items-center justify-center gap-2">
+                  <button @click="viewDetail(item)" class="text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors" title="Detail">
+                    Detail
+                  </button>
                   <button @click="editTransaksi(item.id)" class="text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors" title="Edit">
                     Edit
                   </button>
@@ -181,8 +196,16 @@ async function handleDelete(id) {
       </div>
 
       <!-- Mobile Cards -->
-      <div class="md:hidden divide-y divide-slate-100">
-        <div v-for="item in riwayat" :key="'mobile-'+item.id" class="py-4">
+      <div v-if="!loading" class="md:hidden divide-y divide-slate-100">
+        <div v-if="riwayat.length === 0" class="py-12 flex flex-col items-center justify-center text-slate-500 text-sm">
+          <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-slate-300">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+          </div>
+          Belum ada catatan amplop.
+        </div>
+        <div v-else v-for="item in riwayat" :key="'mobile-'+item.id" class="py-4">
           <div class="flex justify-between items-start mb-2">
             <div class="pr-2">
               <h3 class="font-bold text-slate-800 text-base">{{ item.kontak?.nama || 'Tanpa Kontak' }}</h3>
@@ -196,6 +219,9 @@ async function handleDelete(id) {
                 {{ item.tipe === 'masuk' ? 'DITERIMA' : 'DIBERIKAN' }}
               </span>
               <div class="flex gap-1">
+                <button @click="viewDetail(item)" class="text-indigo-600 bg-indigo-50 hover:bg-indigo-100 p-1.5 rounded-lg transition-colors" title="Detail">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                </button>
                 <button @click="editTransaksi(item.id)" class="text-emerald-600 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg transition-colors" title="Edit">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
                 </button>
@@ -220,6 +246,12 @@ async function handleDelete(id) {
       :transaksiId="selectedTransaksiId" 
       @close="showEditModal = false" 
       @updated="loadRiwayat" 
+    />
+    
+    <ModalDetailTransaksi
+      :show="showDetailModal"
+      :transaksi="selectedDetailTransaksi"
+      @close="showDetailModal = false"
     />
   </div>
 </template>
