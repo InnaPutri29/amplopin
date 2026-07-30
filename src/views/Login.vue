@@ -109,8 +109,8 @@ async function handleSubmit() {
 .auth-gradient {
   position: relative;
   flex-shrink: 0;
-  height: 42%;
-  min-height: 260px;
+  height: 40%;
+  min-height: 250px;
   background: linear-gradient(155deg,
     #bac8ed 0%,
     #92a8d1 30%,
