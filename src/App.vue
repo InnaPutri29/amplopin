@@ -10,7 +10,7 @@ const { user } = useAuth()
 </script>
 
 <template>
-  <div :class="['min-h-screen relative overflow-hidden flex items-center justify-center p-0 z-0', route.meta.public ? 'bg-white md:p-6' : 'bg-[#f3f4fa] md:p-6']">
+  <div :class="[route.meta.public ? 'h-screen' : 'min-h-screen', 'relative overflow-hidden flex items-center justify-center p-0 z-0', route.meta.public ? 'bg-white md:p-6' : 'bg-[#f3f4fa] md:p-6']">
     <Toast />
     <!-- Liquid Background Blobs (hidden on auth pages) -->
     <template v-if="!route.meta.public">
