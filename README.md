@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://amplopin.web.id/vite.svg" alt="Amplopin Logo" width="80" height="80">
+  <img src="https://amplopin.web.id/logo.png" alt="Amplopin Logo" width="80" height="80">
   <h1 align="center">Amplopin</h1>
   <p align="center">
     <strong>Aplikasi Pencatatan Amplop Keluarga Modern & Elegan</strong>
