@@ -52,8 +52,6 @@ async function handleSubmit() {
 
     <!-- White Form Panel -->
     <div class="auth-panel">
-      <!-- Added missing handle based on your CSS -->
-      <div class="auth-panel-handle"></div>
 
       <h2 class="auth-form-title">Masuk</h2>
       <p class="auth-form-subtitle">Halo! Senang bertemu kembali</p>

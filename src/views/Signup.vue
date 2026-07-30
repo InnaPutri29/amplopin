@@ -55,7 +55,6 @@ async function handleSubmit() {
 
     <!-- White Form Panel -->
     <div class="auth-panel">
-      <div class="auth-panel-handle"></div>
 
       <h2 class="auth-form-title">Daftar Keluarga</h2>
       <p class="auth-form-subtitle">Ayo mulai! Siap mencatat amplop?</p>
