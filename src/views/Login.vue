@@ -43,7 +43,7 @@ async function handleSubmit() {
       <!-- Logo & Welcome -->
       <div class="auth-hero">
         <div class="auth-logo">
-          <span>A</span>
+          <img src="/logo.png" alt="Logo Amplopin" class="w-12 h-12 object-contain bg-white rounded-full p-1.5 shadow-sm" />
         </div>
         <h1 class="auth-title">Selamat Datang!</h1>
         <p class="auth-subtitle">Masuk dan kelola catatan<br/>amplop keluargamu.</p>
@@ -52,8 +52,6 @@ async function handleSubmit() {
 
     <!-- White Form Panel -->
     <div class="auth-panel">
-      <!-- Added missing handle based on your CSS -->
-      <div class="auth-panel-handle"></div>
 
       <h2 class="auth-form-title">Masuk</h2>
       <p class="auth-form-subtitle">Halo! Senang bertemu kembali</p>
@@ -111,8 +109,8 @@ async function handleSubmit() {
 .auth-gradient {
   position: relative;
   flex-shrink: 0;
-  height: 42%;
-  min-height: 260px;
+  height: 40%;
+  min-height: 250px;
   background: linear-gradient(155deg,
     #bac8ed 0%,
     #92a8d1 30%,
@@ -203,7 +201,7 @@ async function handleSubmit() {
   font-size: 22px;
   font-weight: 800;
   color: #1e293b;
-  margin: 0 0 4px;
+  margin: 24px 0 4px;
 }
 
 .auth-form-subtitle {
@@ -360,7 +358,7 @@ async function handleSubmit() {
   text-align: center;
   font-size: 13px;
   color: #94a3b8;
-  margin-top: auto;
+  margin-top: 8px;
 }
 
 .auth-switch-link {

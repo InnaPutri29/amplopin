@@ -31,7 +31,7 @@ const isActive = (path) => route.path === path
 
 const handleSignOut = async () => {
   await signOut()
-  router.push('/masuk')
+  router.push('/selamat-datang')
 }
 </script>
 
@@ -40,8 +40,8 @@ const handleSignOut = async () => {
     
     <!-- Logo (Fixed) -->
     <div class="flex items-center gap-3 mb-8 pl-2 flex-shrink-0">
-      <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-xl shadow-lg">
-        A
+      <div class="w-10 h-10 rounded-full shadow-sm flex items-center justify-center bg-white p-1">
+        <img src="/logo.png" alt="Logo" class="w-full h-full object-contain" />
       </div>
       <span class="font-display font-bold text-2xl text-slate-900 tracking-tight">Amplopin</span>
     </div>
