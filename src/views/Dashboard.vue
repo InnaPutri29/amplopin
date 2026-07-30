@@ -95,7 +95,7 @@ onMounted(loadRingkasan)
           <p class="font-bold text-slate-700 text-lg">{{ KATEGORI_LABEL[r.kategori_acara] }}</p>
           <div class="flex flex-wrap items-center gap-y-2 gap-x-2 mt-2 text-[11px] font-medium">
             <span class="text-serenity-600 bg-serenity-50 px-2 py-1 rounded-md whitespace-nowrap">Masuk: {{ formatRupiah(r.total_masuk) }}</span>
-            <span class="text-slate-300 hidden sm:inline-block">•</span>
+            <span class="text-slate-300 hidden sm:inline-block">-</span>
             <span class="text-quartz-600 bg-quartz-50 px-2 py-1 rounded-md whitespace-nowrap">Keluar: {{ formatRupiah(r.total_keluar) }}</span>
           </div>
         </div>

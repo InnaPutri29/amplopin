@@ -186,7 +186,7 @@ async function handleDelete(id) {
           <div class="flex justify-between items-start mb-2">
             <div class="pr-2">
               <h3 class="font-bold text-slate-800 text-base">{{ item.kontak?.nama || 'Tanpa Kontak' }}</h3>
-              <p class="text-xs text-slate-500 mt-0.5">{{ formatDate(item.tanggal_acara) }} • {{ item.jenis_acara || item.kategori_acara.replace('_', ' ') }}</p>
+              <p class="text-xs text-slate-500 mt-0.5">{{ formatDate(item.tanggal_acara) }} - {{ item.jenis_acara || item.kategori_acara.replace('_', ' ') }}</p>
             </div>
             <div class="flex flex-col items-end gap-2 flex-shrink-0">
               <span 

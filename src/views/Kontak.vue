@@ -157,7 +157,7 @@ onMounted(loadKontak)
               <div>
                 <p class="font-bold text-slate-700 group-hover:text-serenity-600 transition-colors">{{ k.nama }}</p>
                 <p v-if="k.no_hp || k.alamat_lengkap" class="text-xs text-slate-400 mt-0.5 font-medium">
-                  {{ [k.no_hp, k.alamat_lengkap].filter(Boolean).join(' • ') }}
+                  {{ [k.no_hp, k.alamat_lengkap].filter(Boolean).join(' - ') }}
                 </p>
               </div>
             </div>

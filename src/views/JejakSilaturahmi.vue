@@ -533,7 +533,7 @@ onMounted(load)
               Kontak: <strong class="text-slate-700">{{ selectedKontakDetail?.nama_kontak }}</strong> ({{ filterKategori === 'suka_cita' ? 'Suka Cita' : 'Duka' }})
             </p>
             <p v-if="selectedKontakDetail?.no_hp || selectedKontakDetail?.alamat" class="text-xs text-slate-400 mt-1 font-medium">
-              {{ [selectedKontakDetail?.no_hp, selectedKontakDetail?.alamat].filter(Boolean).join(' • ') }}
+              {{ [selectedKontakDetail?.no_hp, selectedKontakDetail?.alamat].filter(Boolean).join(' - ') }}
             </p>
           </div>
           <button @click="showDetailModal = false" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors flex-shrink-0 mt-1">
