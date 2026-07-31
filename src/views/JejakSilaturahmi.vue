@@ -147,6 +147,25 @@ const filteredData = computed(() => {
   })
 })
 
+const itemsPerPage = ref(10)
+const currentPage = ref(1)
+
+const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage.value) || 1)
+
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredData.value.slice(start, end)
+})
+
+import { watch } from 'vue'
+watch(searchQuery, () => {
+  currentPage.value = 1
+})
+watch(filterKategori, () => {
+  currentPage.value = 1
+})
+
 const fileInput = ref(null)
 const showImportModal = ref(false)
 const importFile = ref(null)
@@ -399,9 +418,9 @@ onMounted(load)
       </div>
 
       <!-- Desktop Table -->
-      <div v-else class="hidden md:block overflow-x-auto">
+      <div v-else class="hidden md:block overflow-x-auto overflow-y-auto max-h-[500px] custom-scrollbar border-b border-slate-100">
         <table class="w-full text-left border-collapse">
-          <thead>
+          <thead class="sticky top-0 bg-white z-10 shadow-[0_1px_2px_-1px_rgba(0,0,0,0.1)]">
             <tr class="border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider">
               <th class="py-3 px-4 font-semibold w-12 text-center">No</th>
               <th class="py-3 px-4 font-semibold">Nama</th>
@@ -411,8 +430,8 @@ onMounted(load)
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in filteredData" :key="row.kontak_id" class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-              <td class="py-4 px-4 text-sm text-slate-500 text-center">{{ index + 1 }}</td>
+            <tr v-for="(row, index) in paginatedData" :key="row.kontak_id" class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+              <td class="py-4 px-4 text-sm text-slate-500 text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
               <td class="py-4 px-4 text-sm font-bold text-slate-800">{{ row.nama_kontak }}</td>
               <td class="py-4 px-4 text-sm text-slate-600">{{ row.alamat || '-' }}</td>
               <td class="py-4 px-4 text-right">
@@ -443,11 +462,11 @@ onMounted(load)
 
       <!-- Mobile Cards -->
       <div v-if="!loading && filteredData.length > 0" class="md:hidden divide-y divide-slate-100">
-        <div v-for="(row, index) in filteredData" :key="'mobile-'+row.kontak_id" class="py-4">
+        <div v-for="(row, index) in paginatedData" :key="'mobile-'+row.kontak_id" class="py-4">
           <div class="flex justify-between items-start mb-2">
             <div class="flex items-center gap-3">
               <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                {{ index + 1 }}
+                {{ (currentPage - 1) * itemsPerPage + index + 1 }}
               </div>
               <div>
                 <h3 class="font-bold text-slate-800">{{ row.nama_kontak }}</h3>
@@ -476,8 +495,48 @@ onMounted(load)
               {{ formatRupiah(row.saldo) }}
             </p>
           </div>
+        </div>
+      </div>
 
+      <!-- Pagination Controls -->
+      <div v-if="!loading && filteredData.length > 0" class="flex flex-col md:flex-row justify-between items-center mt-6 pt-6 border-t border-slate-100 gap-4">
+        <div class="text-sm text-slate-500">
+          Menampilkan <span class="font-bold text-slate-700">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> - 
+          <span class="font-bold text-slate-700">{{ Math.min(currentPage * itemsPerPage, filteredData.length) }}</span> 
+          dari <span class="font-bold text-slate-700">{{ filteredData.length }}</span> data
+        </div>
+        <div class="flex items-center gap-2">
+          <button 
+            @click="currentPage > 1 && currentPage--" 
+            :disabled="currentPage === 1"
+            class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          
+          <div class="flex gap-1">
+            <button 
+              v-for="page in totalPages" 
+              :key="page"
+              @click="currentPage = page"
+              class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-semibold transition-colors"
+              :class="currentPage === page ? 'bg-serenity-500 text-white shadow-md shadow-serenity-500/30' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'"
+            >
+              {{ page }}
+            </button>
+          </div>
 
+          <button 
+            @click="currentPage < totalPages && currentPage++" 
+            :disabled="currentPage === totalPages"
+            class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

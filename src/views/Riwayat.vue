@@ -48,6 +48,17 @@ async function loadRiwayat() {
   loading.value = false
 }
 
+const itemsPerPage = ref(20)
+const currentPage = ref(1)
+
+const totalPages = computed(() => Math.ceil(riwayat.value.length / itemsPerPage.value) || 1)
+
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return riwayat.value.slice(start, end)
+})
+
 onMounted(loadRiwayat)
 
 function formatRupiah(n) {
@@ -142,9 +153,9 @@ async function handleDelete(id) {
       </div>
       
       <!-- Desktop Table -->
-      <div v-else class="hidden md:block overflow-x-auto">
+      <div v-else class="hidden md:block overflow-x-auto overflow-y-auto max-h-[500px] custom-scrollbar border-b border-slate-100">
         <table class="w-full text-left border-collapse">
-          <thead>
+          <thead class="sticky top-0 bg-white z-10 shadow-[0_1px_2px_-1px_rgba(0,0,0,0.1)]">
             <tr class="border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider">
               <th class="py-3 px-4 font-semibold">Tanggal</th>
               <th class="py-3 px-4 font-semibold">Kontak</th>
@@ -155,7 +166,7 @@ async function handleDelete(id) {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in riwayat" :key="item.id" class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+            <tr v-for="(item, index) in paginatedData" :key="item.id" class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
               <td class="py-4 px-4 text-sm text-slate-700">{{ formatDate(item.tanggal_acara) }}</td>
               <td class="py-4 px-4 text-sm font-medium text-slate-800">
                 {{ item.kontak?.nama || 'Tanpa Kontak' }}
@@ -194,7 +205,7 @@ async function handleDelete(id) {
 
       <!-- Mobile Cards -->
       <div v-if="!loading && riwayat.length > 0" class="md:hidden divide-y divide-slate-100">
-        <div v-for="item in riwayat" :key="'mobile-'+item.id" class="py-4">
+        <div v-for="item in paginatedData" :key="'mobile-'+item.id" class="py-4">
           <div class="flex justify-between items-start mb-2">
             <div class="pr-2">
               <h3 class="font-bold text-slate-800 text-base">{{ item.kontak?.nama || 'Tanpa Kontak' }}</h3>
@@ -226,6 +237,48 @@ async function handleDelete(id) {
               {{ formatRupiah(item.nominal) }}
             </p>
           </div>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div v-if="!loading && riwayat.length > 0" class="flex flex-col md:flex-row justify-between items-center mt-6 pt-6 border-t border-slate-100 gap-4">
+        <div class="text-sm text-slate-500">
+          Menampilkan <span class="font-bold text-slate-700">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> - 
+          <span class="font-bold text-slate-700">{{ Math.min(currentPage * itemsPerPage, riwayat.length) }}</span> 
+          dari <span class="font-bold text-slate-700">{{ riwayat.length }}</span> catatan
+        </div>
+        <div class="flex items-center gap-2">
+          <button 
+            @click="currentPage > 1 && currentPage--" 
+            :disabled="currentPage === 1"
+            class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          
+          <div class="flex gap-1">
+            <button 
+              v-for="page in totalPages" 
+              :key="page"
+              @click="currentPage = page"
+              class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-semibold transition-colors"
+              :class="currentPage === page ? 'bg-serenity-500 text-white shadow-md shadow-serenity-500/30' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'"
+            >
+              {{ page }}
+            </button>
+          </div>
+
+          <button 
+            @click="currentPage < totalPages && currentPage++" 
+            :disabled="currentPage === totalPages"
+            class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
