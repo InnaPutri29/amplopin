@@ -148,7 +148,7 @@ onMounted(loadKontak)
           </div>
           Belum ada kontak ditemukan.
         </div>
-        <ul v-else class="space-y-3">
+        <ul v-else class="space-y-3 overflow-y-auto max-h-[500px] custom-scrollbar pr-2">
           <RouterLink v-for="k in kontakList" :key="k.id" :to="`/kontak/${k.id}`" class="flex items-center justify-between p-4 rounded-[1.25rem] hover:bg-slate-50/80 transition-colors border border-transparent hover:border-slate-100 group block">
             <div class="flex items-center gap-4">
               <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-quartz-100 to-serenity-100 flex items-center justify-center text-serenity-600 font-bold shadow-sm shrink-0">
