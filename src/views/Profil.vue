@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { useRouter } from 'vue-router'
+import { supabase } from '../lib/supabase'
 import ModalMasukan from '../components/ModalMasukan.vue'
 import { showToast } from '../utils/swal'
 
@@ -16,6 +17,7 @@ const showModalMasukan = ref(false)
 
 const nama = ref(user.value?.user_metadata?.nama_keluarga || '')
 const email = ref(user.value?.email || '')
+const oldPassword = ref('')
 const password = ref('')
 const loading = ref(false)
 const successMsg = ref('')
@@ -43,13 +45,35 @@ async function handleUpdate() {
     return
   }
 
+  // Jika ingin mengubah password, validasi password lama terlebih dahulu
+  if (updates.password) {
+    if (!oldPassword.value) {
+      errorMsg.value = 'Harap masukkan kata sandi lama Anda untuk memverifikasi perubahan kata sandi baru.'
+      loading.value = false
+      return
+    }
+    
+    // Verifikasi password lama dengan mencoba sign-in
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.value.email,
+      password: oldPassword.value
+    })
+    
+    if (signInError) {
+      errorMsg.value = 'Kata sandi lama yang Anda masukkan salah.'
+      loading.value = false
+      return
+    }
+  }
+
   const { error } = await updateProfile(updates)
   
   if (error) {
     errorMsg.value = error.message
   } else {
     showToast('Profil berhasil diperbarui!')
-    password.value = '' // clear password field after update
+    password.value = '' 
+    oldPassword.value = ''
     if (updates.email) {
       successMsg.value = 'Silakan cek email baru Anda untuk konfirmasi (jika fitur aktif).'
     }
@@ -123,6 +147,17 @@ async function handleUpdate() {
               type="email" 
               required 
               class="input-field"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-600 mb-1.5">Kata Sandi Lama</label>
+            <input 
+              v-model="oldPassword" 
+              type="password" 
+              class="input-field mb-4"
+              placeholder="Wajib diisi jika ingin mengubah kata sandi"
+              :required="!!password"
             />
           </div>
 

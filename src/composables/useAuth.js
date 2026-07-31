@@ -68,6 +68,18 @@ async function updateProfile({ email, password, nama_keluarga }) {
   return { data, error }
 }
 
+async function sendPasswordResetEmail(email) {
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-sandi`,
+  })
+  return { data, error }
+}
+
+async function updatePassword(newPassword) {
+  const { data, error } = await supabase.auth.updateUser({ password: newPassword })
+  return { data, error }
+}
+
 export function useAuth() {
-  return { user, userRole, isReady, init, signUp, signIn, signOut, updateProfile }
+  return { user, userRole, isReady, init, signUp, signIn, signOut, updateProfile, sendPasswordResetEmail, updatePassword }
 }
