@@ -24,6 +24,7 @@ const routes = [
   { path: '/admin/dasbor', name: 'admin-dasbor', component: () => import('../views/admin/AdminDashboard.vue'), meta: { adminOnly: true } },
   { path: '/admin/masukan', name: 'admin-masukan', component: () => import('../views/admin/AdminMasukan.vue'), meta: { adminOnly: true } },
   { path: '/admin/pengguna', name: 'admin-pengguna', component: () => import('../views/admin/AdminPengguna.vue'), meta: { adminOnly: true } },
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFound.vue'), meta: { public: true } },
 ]
 
 const router = createRouter({
