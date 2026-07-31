@@ -14,6 +14,8 @@ const routes = [
   { path: '/', name: 'welcome', component: () => import('../views/Welcome.vue'), meta: { public: true } },
   { path: '/masuk', name: 'masuk', component: () => import('../views/Login.vue'), meta: { public: true } },
   { path: '/daftar', name: 'daftar', component: () => import('../views/Signup.vue'), meta: { public: true } },
+  { path: '/lupa-sandi', name: 'lupa-sandi', component: () => import('../views/LupaSandi.vue'), meta: { public: true } },
+  { path: '/reset-sandi', name: 'reset-sandi', component: () => import('../views/ResetSandi.vue'), meta: { public: true } },
   { path: '/dasbor', name: 'dashboard', component: Dashboard },
   { path: '/kontak', name: 'kontak', component: Kontak },
   { path: '/kontak/:id', name: 'kontak-detail', component: KontakDetail },
@@ -24,6 +26,7 @@ const routes = [
   { path: '/admin/dasbor', name: 'admin-dasbor', component: () => import('../views/admin/AdminDashboard.vue'), meta: { adminOnly: true } },
   { path: '/admin/masukan', name: 'admin-masukan', component: () => import('../views/admin/AdminMasukan.vue'), meta: { adminOnly: true } },
   { path: '/admin/pengguna', name: 'admin-pengguna', component: () => import('../views/admin/AdminPengguna.vue'), meta: { adminOnly: true } },
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFound.vue'), meta: { public: true } },
 ]
 
 const router = createRouter({
@@ -38,7 +41,7 @@ router.beforeEach(async (to) => {
   if (!to.meta.public && !user.value) {
     return { name: 'welcome' }
   }
-  if (to.meta.public && user.value) {
+  if (to.meta.public && user.value && to.name !== 'reset-sandi') {
     return { name: 'dashboard' }
   }
   if (to.meta.adminOnly && userRole.value !== 'admin') {

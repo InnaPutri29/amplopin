@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
-import { confirmDialog, showError, showInfo, showToast } from '../utils/swal'
+import { confirmDialog, showError, showInfo, showToast, showSuccess } from '../utils/swal'
+import * as XLSX from 'xlsx'
 
 const { user } = useAuth()
 const keyword = ref('')
@@ -34,7 +35,19 @@ async function loadKontak() {
 let debounceTimer
 watch(keyword, () => {
   clearTimeout(debounceTimer)
+  currentPage.value = 1
   debounceTimer = setTimeout(loadKontak, 250)
+})
+
+const itemsPerPage = ref(10)
+const currentPage = ref(1)
+
+const totalPages = computed(() => Math.ceil(kontakList.value.length / itemsPerPage.value) || 1)
+
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return kontakList.value.slice(start, end)
 })
 
 async function tambahKontak() {
@@ -88,19 +101,124 @@ async function hapusKontak(k) {
   }
 }
 
+const fileInput = ref(null)
+const importFile = ref(null)
+
+function triggerFileInput() {
+  fileInput.value?.click()
+}
+
+function handleFileSelect(event) {
+  const file = event.target.files[0]
+  if (!file) return
+  importFile.value = file
+  processImport()
+}
+
+async function processImport() {
+  if (!importFile.value) return
+  loading.value = true
+  const reader = new FileReader()
+  reader.onload = async (e) => {
+    try {
+      const arrayBuffer = new Uint8Array(e.target.result)
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' })
+      const sheetName = workbook.SheetNames[0]
+      const worksheet = workbook.Sheets[sheetName]
+      const jsonData = XLSX.utils.sheet_to_json(worksheet)
+      
+      let importedCount = 0
+
+      for (const row of jsonData) {
+        const keys = Object.keys(row)
+        const getVal = (possibleNames) => {
+          const key = keys.find(k => possibleNames.some(p => k.toLowerCase().includes(p)))
+          return key ? row[key] : null
+        }
+        
+        const nama = getVal(['nama'])
+        const alamat = getVal(['alamat'])
+        const noHp = getVal(['hp', 'telepon', 'telp', 'nomor'])
+        
+        if (!nama) continue
+        
+        const existingKontak = kontakList.value.find(k => k.nama.toLowerCase() === String(nama).trim().toLowerCase())
+        if (!existingKontak) {
+          const { error } = await supabase.from('kontak').insert({
+            keluarga_id: user.value.id,
+            nama: String(nama).trim(),
+            alamat_lengkap: alamat ? String(alamat).trim() : '-',
+            no_hp: noHp ? String(noHp).trim() : null
+          })
+          if (!error) importedCount++
+        }
+      }
+      
+      if (importedCount > 0) {
+        showSuccess('Berhasil', `${importedCount} kontak baru berhasil diimpor!`)
+        loadKontak()
+      } else {
+        showInfo('Info', 'Tidak ada kontak baru yang ditambahkan (mungkin data sudah ada semua atau format salah).')
+        loading.value = false
+      }
+    } catch (err) {
+      showError('Gagal', 'Terjadi kesalahan saat membaca file Excel.')
+      loading.value = false
+    } finally {
+      importFile.value = null
+      if (fileInput.value) fileInput.value.value = ''
+    }
+  }
+  reader.readAsArrayBuffer(importFile.value)
+}
+
+function downloadTemplate() {
+  const ws = XLSX.utils.aoa_to_sheet([
+    ['Nama', 'Alamat', 'No HP (Opsional)'],
+    ['Budi Santoso', 'Jl. Merdeka No 1', '081234567890'],
+    ['Siti Aminah', 'Desa Sukamaju', '']
+  ])
+  
+  const wscols = [
+    { wch: 25 },
+    { wch: 35 },
+    { wch: 20 }
+  ]
+  ws['!cols'] = wscols
+  
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Template')
+  XLSX.writeFile(wb, 'Template_Impor_Kontak.xlsx')
+}
+
 onMounted(loadKontak)
 </script>
 
 <template>
   <div>
-    <div class="mb-6 px-2 flex justify-between items-end">
+    <div class="mb-6 px-2 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
       <div>
         <h1 class="font-display text-3xl font-bold text-slate-800">Buku Kontak</h1>
         <p class="text-slate-500 text-sm mt-1">Kelola daftar kontak untuk pencatatan amplop.</p>
       </div>
-      <button v-if="!showForm" class="btn-primary shadow-none py-2 px-4 text-sm whitespace-nowrap" @click="showForm = true">
-        + Tambah
-      </button>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button @click="downloadTemplate" class="flex items-center gap-2 bg-white text-slate-600 font-semibold px-3 py-2 rounded-xl shadow-sm hover:shadow-md border border-slate-100 transition-all text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Unduh Template
+        </button>
+        <input type="file" ref="fileInput" accept=".xlsx, .xls" class="hidden" @change="handleFileSelect" />
+        <button @click="triggerFileInput" class="flex items-center gap-2 bg-white text-slate-600 font-semibold px-3 py-2 rounded-xl shadow-sm hover:shadow-md border border-slate-100 transition-all text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+          </svg>
+          Impor Excel
+        </button>
+        <button v-if="!showForm" class="btn-primary shadow-none py-2 px-4 text-sm whitespace-nowrap" @click="showForm = true">
+          + Tambah
+        </button>
+      </div>
     </div>
 
     <div class="card p-6 md:p-8 mb-6 relative overflow-hidden">
@@ -148,8 +266,8 @@ onMounted(loadKontak)
           </div>
           Belum ada kontak ditemukan.
         </div>
-        <ul v-else class="space-y-3">
-          <RouterLink v-for="k in kontakList" :key="k.id" :to="`/kontak/${k.id}`" class="flex items-center justify-between p-4 rounded-[1.25rem] hover:bg-slate-50/80 transition-colors border border-transparent hover:border-slate-100 group block">
+        <ul v-else class="space-y-3 overflow-y-auto max-h-[500px] custom-scrollbar pr-2">
+          <RouterLink v-for="k in paginatedData" :key="k.id" :to="`/kontak/${k.id}`" class="flex items-center justify-between p-4 rounded-[1.25rem] hover:bg-slate-50/80 transition-colors border border-transparent hover:border-slate-100 group block">
             <div class="flex items-center gap-4">
               <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-quartz-100 to-serenity-100 flex items-center justify-center text-serenity-600 font-bold shadow-sm shrink-0">
                 {{ k.nama.charAt(0).toUpperCase() }}
@@ -173,6 +291,61 @@ onMounted(loadKontak)
             </div>
           </RouterLink>
         </ul>
+
+        <!-- Pagination Controls -->
+        <div v-if="!loading && kontakList.length > 0" class="flex flex-col md:flex-row justify-between items-center mt-6 pt-6 border-t border-slate-100 gap-4">
+          <div class="text-sm text-slate-500 flex items-center flex-wrap gap-2">
+            <div>
+              Menampilkan <span class="font-bold text-slate-700">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> - 
+              <span class="font-bold text-slate-700">{{ Math.min(currentPage * itemsPerPage, kontakList.length) }}</span> 
+              dari <span class="font-bold text-slate-700">{{ kontakList.length }}</span> kontak
+            </div>
+            <div class="hidden md:block text-slate-300">|</div>
+            <div class="flex items-center">
+              Tampilkan:
+              <select v-model="itemsPerPage" @change="currentPage = 1" class="ml-2 border border-slate-200 rounded-lg text-slate-700 bg-white focus:ring-serenity-300 focus:border-serenity-300 text-sm py-1 px-2 outline-none shadow-sm cursor-pointer">
+                <option :value="10">10</option>
+                <option :value="20">20</option>
+                <option :value="30">30</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button 
+              @click="currentPage > 1 && currentPage--" 
+              :disabled="currentPage === 1"
+              class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+            </button>
+            
+            <div class="flex gap-1 flex-wrap justify-center max-w-[200px] md:max-w-none">
+              <button 
+                v-for="page in totalPages" 
+                :key="page"
+                @click="currentPage = page"
+                class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-semibold transition-colors"
+                :class="currentPage === page ? 'bg-serenity-500 text-white shadow-md shadow-serenity-500/30' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <button 
+              @click="currentPage < totalPages && currentPage++" 
+              :disabled="currentPage === totalPages"
+              class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
