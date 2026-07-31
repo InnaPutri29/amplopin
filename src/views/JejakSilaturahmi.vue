@@ -556,7 +556,7 @@ onMounted(load)
 
     <!-- Import Config Modal -->
     <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-      <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
+      <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
         <button @click="showImportModal = false; importFile = null" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
