@@ -500,10 +500,23 @@ onMounted(load)
 
       <!-- Pagination Controls -->
       <div v-if="!loading && filteredData.length > 0" class="flex flex-col md:flex-row justify-between items-center mt-6 pt-6 border-t border-slate-100 gap-4">
-        <div class="text-sm text-slate-500">
-          Menampilkan <span class="font-bold text-slate-700">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> - 
-          <span class="font-bold text-slate-700">{{ Math.min(currentPage * itemsPerPage, filteredData.length) }}</span> 
-          dari <span class="font-bold text-slate-700">{{ filteredData.length }}</span> data
+        <div class="text-sm text-slate-500 flex items-center flex-wrap gap-2">
+          <div>
+            Menampilkan <span class="font-bold text-slate-700">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> - 
+            <span class="font-bold text-slate-700">{{ Math.min(currentPage * itemsPerPage, filteredData.length) }}</span> 
+            dari <span class="font-bold text-slate-700">{{ filteredData.length }}</span> data
+          </div>
+          <div class="hidden md:block text-slate-300">|</div>
+          <div class="flex items-center">
+            Tampilkan:
+            <select v-model="itemsPerPage" @change="currentPage = 1" class="ml-2 border border-slate-200 rounded-lg text-slate-700 bg-white focus:ring-serenity-300 focus:border-serenity-300 text-sm py-1 px-2 outline-none shadow-sm cursor-pointer">
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="30">30</option>
+              <option :value="50">50</option>
+              <option :value="100">100</option>
+            </select>
+          </div>
         </div>
         <div class="flex items-center gap-2">
           <button 

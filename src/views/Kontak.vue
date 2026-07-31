@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../composables/useAuth'
 import ModalEditKontak from '../components/ModalEditKontak.vue'
@@ -34,7 +34,19 @@ async function loadKontak() {
 let debounceTimer
 watch(keyword, () => {
   clearTimeout(debounceTimer)
+  currentPage.value = 1
   debounceTimer = setTimeout(loadKontak, 250)
+})
+
+const itemsPerPage = ref(10)
+const currentPage = ref(1)
+
+const totalPages = computed(() => Math.ceil(kontakList.value.length / itemsPerPage.value) || 1)
+
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return kontakList.value.slice(start, end)
 })
 
 async function tambahKontak() {
@@ -149,7 +161,7 @@ onMounted(loadKontak)
           Belum ada kontak ditemukan.
         </div>
         <ul v-else class="space-y-3 overflow-y-auto max-h-[500px] custom-scrollbar pr-2">
-          <RouterLink v-for="k in kontakList" :key="k.id" :to="`/kontak/${k.id}`" class="flex items-center justify-between p-4 rounded-[1.25rem] hover:bg-slate-50/80 transition-colors border border-transparent hover:border-slate-100 group block">
+          <RouterLink v-for="k in paginatedData" :key="k.id" :to="`/kontak/${k.id}`" class="flex items-center justify-between p-4 rounded-[1.25rem] hover:bg-slate-50/80 transition-colors border border-transparent hover:border-slate-100 group block">
             <div class="flex items-center gap-4">
               <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-quartz-100 to-serenity-100 flex items-center justify-center text-serenity-600 font-bold shadow-sm shrink-0">
                 {{ k.nama.charAt(0).toUpperCase() }}
@@ -173,6 +185,61 @@ onMounted(loadKontak)
             </div>
           </RouterLink>
         </ul>
+
+        <!-- Pagination Controls -->
+        <div v-if="!loading && kontakList.length > 0" class="flex flex-col md:flex-row justify-between items-center mt-6 pt-6 border-t border-slate-100 gap-4">
+          <div class="text-sm text-slate-500 flex items-center flex-wrap gap-2">
+            <div>
+              Menampilkan <span class="font-bold text-slate-700">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> - 
+              <span class="font-bold text-slate-700">{{ Math.min(currentPage * itemsPerPage, kontakList.length) }}</span> 
+              dari <span class="font-bold text-slate-700">{{ kontakList.length }}</span> kontak
+            </div>
+            <div class="hidden md:block text-slate-300">|</div>
+            <div class="flex items-center">
+              Tampilkan:
+              <select v-model="itemsPerPage" @change="currentPage = 1" class="ml-2 border border-slate-200 rounded-lg text-slate-700 bg-white focus:ring-serenity-300 focus:border-serenity-300 text-sm py-1 px-2 outline-none shadow-sm cursor-pointer">
+                <option :value="10">10</option>
+                <option :value="20">20</option>
+                <option :value="30">30</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button 
+              @click="currentPage > 1 && currentPage--" 
+              :disabled="currentPage === 1"
+              class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+            </button>
+            
+            <div class="flex gap-1 flex-wrap justify-center max-w-[200px] md:max-w-none">
+              <button 
+                v-for="page in totalPages" 
+                :key="page"
+                @click="currentPage = page"
+                class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-semibold transition-colors"
+                :class="currentPage === page ? 'bg-serenity-500 text-white shadow-md shadow-serenity-500/30' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <button 
+              @click="currentPage < totalPages && currentPage++" 
+              :disabled="currentPage === totalPages"
+              class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
