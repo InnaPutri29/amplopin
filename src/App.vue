@@ -12,15 +12,15 @@ const { user } = useAuth()
 <template>
   <div :class="[route.meta.public ? 'h-screen' : 'min-h-screen', 'relative overflow-hidden flex items-center justify-center p-0 z-0', route.meta.public ? 'bg-white md:p-6' : 'bg-[#f3f4fa] md:p-6']">
     <Toast />
-    <!-- Liquid Background Blobs (hidden on auth pages) -->
+    <!-- Liquid Background Blobs (hidden on mobile and auth pages to improve performance) -->
     <template v-if="!route.meta.public">
-      <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#e0c3fc] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>
-      <div class="absolute top-[20%] right-[-10%] w-[40%] h-[50%] bg-[#8ec5fc] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>
-      <div class="absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] bg-[#ffecd2] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-4000"></div>
+      <div class="hidden md:block absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#e0c3fc] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>
+      <div class="hidden md:block absolute top-[20%] right-[-10%] w-[40%] h-[50%] bg-[#8ec5fc] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>
+      <div class="hidden md:block absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] bg-[#ffecd2] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-4000"></div>
     </template>
     
     <!-- App Container (Glassmorphism) -->
-    <div class="w-full h-screen md:h-[90vh] max-w-[1400px] bg-white/70 backdrop-blur-2xl md:rounded-[2.5rem] shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] border border-white/50 overflow-hidden flex flex-col md:flex-row relative z-10">
+    <div class="w-full h-screen md:h-[90vh] max-w-[1400px] bg-white/95 md:bg-white/70 backdrop-blur-none md:backdrop-blur-2xl md:rounded-[2.5rem] shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] border border-white/50 overflow-hidden flex flex-col md:flex-row relative z-10">
       
       <!-- Sidebar for Desktop -->
       <Sidebar v-if="user && !route.meta.public" />
@@ -51,5 +51,7 @@ const { user } = useAuth()
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    will-change: scroll-position;
 }
 </style>

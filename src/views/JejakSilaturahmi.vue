@@ -235,7 +235,7 @@ async function processImport() {
         
         if (!kontakId) continue
 
-        await supabase.from('transaksi').insert({
+        const { error: errT } = await supabase.from('transaksi').insert({
           keluarga_id: user.value.id,
           kontak_id: kontakId,
           tipe: importConfig.value.tipe,
@@ -245,6 +245,11 @@ async function processImport() {
           nominal: nominal,
           keterangan: 'Hasil Impor Excel'
         })
+        
+        if (errT) {
+          console.error('Error insert transaksi:', errT)
+          throw new Error('Gagal menyimpan transaksi untuk ' + nama + ': ' + errT.message)
+        }
         
         importedCount++
       }

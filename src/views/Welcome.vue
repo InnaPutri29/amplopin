@@ -152,8 +152,8 @@ const router = useRouter()
 }
 
 .welcome-logo {
-  width: 72px;
-  height: 72px;
+  width: clamp(56px, 10vh, 72px);
+  height: clamp(56px, 10vh, 72px);
   border-radius: 50%;
   background: rgba(255,255,255,0.3);
   backdrop-filter: blur(12px);
@@ -161,16 +161,18 @@ const router = useRouter()
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
-  font-weight: 800;
   color: white;
-  margin-bottom: 8px;
+  margin-bottom: clamp(4px, 1.5vh, 8px);
   box-shadow: 0 8px 32px rgba(70, 91, 130, 0.25);
+}
+.welcome-logo img {
+  width: clamp(36px, 6vh, 48px);
+  height: clamp(36px, 6vh, 48px);
 }
 
 .welcome-title {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 32px;
+  font-size: clamp(28px, 6vh, 36px);
   font-weight: 800;
   color: white;
   margin: 0;
@@ -178,33 +180,25 @@ const router = useRouter()
   text-shadow: 0 2px 16px rgba(70, 91, 130, 0.3);
 }
 
-@media (min-width: 768px) {
-  .welcome-title {
-    font-size: 36px;
-  }
-}
-
 .welcome-desc {
-  font-size: 14px;
+  font-size: clamp(13px, 2.5vh, 15px);
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.5;
-  margin-top: 6px;
+  margin-top: clamp(4px, 1vh, 8px);
   font-weight: 500;
   max-width: 260px;
 }
 
-@media (min-width: 768px) {
-  .welcome-desc {
-    font-size: 15px;
-  }
-}
-
 .welcome-illustration {
-  margin-top: 12px;
-  width: 160px;
-  height: 130px;
+  margin-top: clamp(8px, 2vh, 16px);
+  width: auto;
+  height: clamp(100px, 22vh, 160px);
   filter: drop-shadow(0 8px 24px rgba(70, 91, 130, 0.2));
   animation: float 4s ease-in-out infinite;
+}
+.welcome-illustration svg {
+  width: 100%;
+  height: 100%;
 }
 
 @keyframes float {
@@ -215,7 +209,7 @@ const router = useRouter()
 .welcome-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: clamp(8px, 2vh, 12px);
   width: 100%;
   max-width: 320px;
   position: relative;
@@ -227,8 +221,8 @@ const router = useRouter()
   color: #465b82;
   border: none;
   border-radius: 100px;
-  padding: 14px 24px;
-  font-size: 15px;
+  padding: clamp(12px, 2.5vh, 16px) 24px;
+  font-size: clamp(14px, 2.8vh, 16px);
   font-weight: 700;
   width: 100%;
   cursor: pointer;
@@ -246,8 +240,8 @@ const router = useRouter()
   color: white;
   border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 100px;
-  padding: 14px 24px;
-  font-size: 15px;
+  padding: clamp(12px, 2.5vh, 16px) 24px;
+  font-size: clamp(14px, 2.8vh, 16px);
   font-weight: 700;
   width: 100%;
   cursor: pointer;
@@ -258,37 +252,4 @@ const router = useRouter()
   transform: translateY(-2px);
 }
 
-/* Adjust sizes for very small height screens */
-@media (max-height: 650px) {
-  .welcome-page {
-    padding: 20px 20px;
-  }
-  .welcome-logo {
-    width: 56px;
-    height: 56px;
-    margin-bottom: 4px;
-  }
-  .welcome-logo img {
-    width: 44px;
-    height: 44px;
-  }
-  .welcome-title {
-    font-size: 28px;
-  }
-  .welcome-desc {
-    font-size: 13px;
-    margin-top: 4px;
-  }
-  .welcome-illustration {
-    width: 120px;
-    height: 100px;
-    margin-top: 4px;
-  }
-  .btn-register, .btn-login {
-    padding: 12px 20px;
-  }
-  .welcome-actions {
-    gap: 8px;
-  }
-}
 </style>
