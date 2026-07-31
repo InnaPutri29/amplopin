@@ -602,9 +602,9 @@ onMounted(load)
       <div class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl relative animate-blob max-h-[85vh] flex flex-col" style="animation-duration: 0.3s; animation-name: popIn;">
         
         <!-- Header -->
-        <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
           <h2 class="font-display font-bold text-xl text-slate-800">Detail Transaksi</h2>
-          <button @click="showDetailModal = false" class="text-slate-400 hover:text-slate-600 bg-white hover:bg-slate-100 rounded-full p-2 transition-colors shadow-sm">
+          <button @click="showDetailModal = false" class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
