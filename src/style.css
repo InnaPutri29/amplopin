@@ -5,6 +5,10 @@
 @layer base {
   html {
     @apply font-body text-slate-800 bg-gradient-to-br from-serenity-100 via-quartz-50 to-quartz-100 min-h-screen background-attachment-fixed;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
     @apply min-h-screen bg-transparent;
